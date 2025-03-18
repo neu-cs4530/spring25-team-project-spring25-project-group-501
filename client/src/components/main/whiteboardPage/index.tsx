@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import './index.css';
-import { addWhiteboard } from '../../../services/whiteboardService';
+import addWhiteboard from '../../../services/whiteboardService';
 
 const WhiteboardPage = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -42,10 +42,15 @@ const WhiteboardPage = () => {
     if (!username) return;
     const dateCreated = new Date();
     const uniqueLink = crypto.randomUUID();
-    const content: string[][] = Array.from({ length: 3 }, () => 
-    Array.from({ length: 4 }, () => '#FFFFFF')
+    const content: string = 'content1';
+    const whiteboard = await addWhiteboard(
+      username,
+      title,
+      dateCreated,
+      content,
+      uniqueLink,
+      accessType,
     );
-    const whiteboard = await addWhiteboard(username, title, dateCreated, content, uniqueLink, accessType);
   };
 
   const startDrawing = (e: React.MouseEvent) => {
@@ -73,10 +78,9 @@ const WhiteboardPage = () => {
     // <button className='btn-create-whiteboard' onClick={handleCreateWhiteboard}>Create Whiteboard</button>
     <div className='whiteboard-container'>
       <div className='horizontal-flex'>
-        {!isCreating && <button className='btn-create-whiteboard' onClick={() => setIsCreating(!isCreating)}>Start Creating Whiteboard</button>}
-        {isCreating && <button className='btn-create-whiteboard' onClick={handleCreateWhiteboard}>Create Whiteboard</button>}
-        {isCreating &&
-        <input type='text' value={title} onChange={e => setTitle(e.target.value)}></input>}
+        <button className='btn-create-whiteboard' onClick={handleCreateWhiteboard}>
+          Create Whiteboard
+        </button>
         <div className='horizontal-flex'>
           <p>Size: </p>
           <input

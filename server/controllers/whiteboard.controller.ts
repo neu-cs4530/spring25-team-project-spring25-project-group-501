@@ -1,5 +1,5 @@
 import express, { Request, Response, Router } from 'express';
-import { AddWhiteBoardRequest, Pixel, FakeSOSocket } from '../types/types';
+import { AddWhiteBoardRequest, FakeSOSocket } from '../types/types';
 import {
   saveWhiteboard,
   getWhiteboardByLink,
@@ -100,7 +100,7 @@ const whiteboardController = (socket: FakeSOSocket): Router => {
     });
 
     // Listen for whiteboard updates and broadcast them to others in the room
-    conn.on('updateWhiteboard', async (whiteboardLink: string, content: Pixel[][]) => {
+    conn.on('updateWhiteboard', async (whiteboardLink: string, content: string) => {
       try {
         const whiteboard = await getWhiteboardByLink(whiteboardLink);
         if ('error' in whiteboard) {

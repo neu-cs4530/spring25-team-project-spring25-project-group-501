@@ -201,23 +201,7 @@ export const whiteboard: Whiteboard = {
   owner: 'user1',
   title: 'whiteboard1',
   dateCreated: new Date('2024-12-03'),
-  content: [
-    [
-      { hex: '#FF0000', x: 0, y: 0 },
-      { hex: '#00FF00', x: 1, y: 0 },
-      { hex: '#0000FF', x: 2, y: 0 },
-    ],
-    [
-      { hex: '#FFFF00', x: 0, y: 1 },
-      { hex: '#FF00FF', x: 1, y: 1 },
-      { hex: '#00FFFF', x: 2, y: 1 },
-    ],
-    [
-      { hex: '#FFFFFF', x: 0, y: 2 },
-      { hex: '#000000', x: 1, y: 2 },
-      { hex: '#808080', x: 2, y: 2 },
-    ],
-  ],
+  content: 'content1',
   uniqueLink: 'uniqueLink1',
   accessType: 'editable',
 };
@@ -226,23 +210,7 @@ export const whiteboard2: Whiteboard = {
   owner: 'user1',
   title: 'whiteboard2',
   dateCreated: new Date('2024-12-05'),
-  content: [
-    [
-      { hex: '#000000', x: 0, y: 0 },
-      { hex: '#00FF00', x: 1, y: 0 },
-      { hex: '#0000FF', x: 2, y: 0 },
-    ],
-    [
-      { hex: '#FFFF00', x: 0, y: 1 },
-      { hex: '#808080', x: 1, y: 1 },
-      { hex: '#00FF00', x: 2, y: 1 },
-    ],
-    [
-      { hex: '#FFFFFF', x: 0, y: 2 },
-      { hex: '#00FF00', x: 1, y: 2 },
-      { hex: '#000000', x: 2, y: 2 },
-    ],
-  ],
+  content: 'content1',
   uniqueLink: 'uniqueLink2',
   accessType: 'read-only',
 };

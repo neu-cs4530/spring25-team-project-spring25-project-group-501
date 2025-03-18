@@ -107,7 +107,7 @@ export interface ClientToServerEvents {
   leaveGame: (gameID: string) => void;
   joinChat: (chatID: string) => void;
   leaveChat: (chatID: string | undefined) => void;
-  updateWhiteboard: (whiteboardLink: string, content: Pixel[][]) => void;
+  updateWhiteboard: (whiteboardLink: string, content: string) => void;
   joinWhiteboard: (whiteboardLink: string) => void;
   leaveWhiteboard: (whiteboardLink: string) => void;
 }
@@ -136,6 +136,6 @@ export interface ServerToClientEvents {
   gameUpdate: (game: GameUpdatePayload) => void;
   gameError: (error: GameErrorPayload) => void;
   chatUpdate: (chat: ChatUpdatePayload) => void;
-  whiteboardContent: (content: Pixel[][]) => void;
+  whiteboardContent: (content: string) => void;
   whiteboardError: (error: string) => void;
 }
