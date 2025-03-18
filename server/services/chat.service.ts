@@ -1,7 +1,14 @@
 import { ObjectId } from 'mongodb';
 import ChatModel from '../models/chat.model';
 import UserModel from '../models/users.model';
-import { Chat, ChatResponse, DatabaseChat, MessageResponse, DatabaseUser } from '../types/types';
+import {
+  Chat,
+  ChatResponse,
+  DatabaseChat,
+  MessageResponse,
+  DatabaseUser,
+  Role,
+} from '../types/types';
 import { saveMessage } from './message.service';
 
 /**
@@ -131,5 +138,27 @@ export const addParticipantToChat = async (
     return updatedChat;
   } catch (error) {
     return { error: `Error adding participant to chat: ${(error as Error).message}` };
+  }
+};
+
+export const changeUserRole = async (
+  chatId: string,
+  userId: string,
+  role: Role,
+): Promise<ChatResponse> => {
+  try {
+    const updatedChat: DatabaseChat | null = await ChatModel.findOneAndUpdate(
+      { '_id': chatId, 'permissions.user': userId },
+      { $set: { 'permissions.$.role': role } },
+      { new: true },
+    );
+
+    if (!updatedChat) {
+      throw new Error('Chat not found or user not a participant.');
+    }
+
+    return updatedChat;
+  } catch (error) {
+    return { error: `Error changing user role: ${(error as Error).message}` };
   }
 };

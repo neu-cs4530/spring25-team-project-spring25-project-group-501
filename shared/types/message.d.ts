@@ -12,7 +12,11 @@ export interface Message {
   msg: string;
   msgFrom: string;
   msgDateTime: Date;
-  type: 'global' | 'direct';
+  type: 'global' | 'direct' | 'poll';
+  poll?: {
+    question: string;
+    options: { optionText: string; votes: string[] }[];
+  };
 }
 
 /**

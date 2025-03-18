@@ -21,6 +21,7 @@ const chatSchema = new Schema(
         ref: 'Message',
       },
     ],
+    permissions: [{ user: String, role: String }],
   },
   {
     collection: 'Chat',

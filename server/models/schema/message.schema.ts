@@ -23,7 +23,11 @@ const messageSchema: Schema = new Schema(
     },
     type: {
       type: String,
-      enum: ['global', 'direct'],
+      enum: ['global', 'direct', 'poll'],
+    },
+    poll: {
+      question: String,
+      options: [{ optionText: String, votes: [String] }],
     },
   },
   { collection: 'Message' },
