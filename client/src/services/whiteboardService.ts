@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { UserCredentials, SafeDatabaseUser, Whiteboard } from '../types/types';
+import { Whiteboard } from '../types/types';
 import api from './config';
 
 const WHITEBOARD_API_URL = `${process.env.REACT_APP_SERVER_URL}/whiteboard`;

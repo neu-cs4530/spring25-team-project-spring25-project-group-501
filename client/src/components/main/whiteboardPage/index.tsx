@@ -40,6 +40,7 @@ const WhiteboardPage = () => {
 
   const handleCreateWhiteboard = async () => {
     if (!username) return;
+    console.log('Creating whiteboard 2');
     const dateCreated = new Date();
     const uniqueLink = crypto.randomUUID();
     const content: string = 'content1';
@@ -78,9 +79,19 @@ const WhiteboardPage = () => {
     // <button className='btn-create-whiteboard' onClick={handleCreateWhiteboard}>Create Whiteboard</button>
     <div className='whiteboard-container'>
       <div className='horizontal-flex'>
-        <button className='btn-create-whiteboard' onClick={handleCreateWhiteboard}>
-          Create Whiteboard
-        </button>
+        {!isCreating && (
+          <button className='btn-create-whiteboard' onClick={() => setIsCreating(!isCreating)}>
+            Start Creating Whiteboard
+          </button>
+        )}
+        {isCreating && (
+          <button className='btn-create-whiteboard' onClick={handleCreateWhiteboard}>
+            Create Whiteboard
+          </button>
+        )}
+        {isCreating && (
+          <input type='text' value={title} onChange={e => setTitle(e.target.value)}></input>
+        )}
         <div className='horizontal-flex'>
           <p>Size: </p>
           <input
