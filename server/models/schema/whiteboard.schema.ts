@@ -16,19 +16,10 @@ import { v4 as uuidv4 } from 'uuid';
  */
 const whiteboardSchema: Schema = new Schema(
   {
-    owner: {
-      type: String,
-      required: true,
-    },
-    title: {
-      type: String,
-      required: true,
-    },
-    dateCreated: {
-      type: Date,
-      default: Date.now,
-    },
-    content: { type: Object, default: {} },
+    owner: { type: String, required: true },
+    title: { type: String, required: true },
+    dateCreated: { type: Date, default: Date.now },
+    content: { type: String, required: true },
     uniqueLink: { type: String, required: true, unique: true, default: uuidv4 },
     accessType: {
       type: String,

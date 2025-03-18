@@ -1,11 +1,6 @@
 import { Request } from 'express';
 
 /**
- * Represents a pixel on the whiteboard, including the color and position.
- */
-export type Pixel = { hex: string; x: number; y: number };
-
-/**
  * Represents a whiteboard document, including the owner, title, content, and access type.
  */
 export interface Whiteboard {
@@ -13,7 +8,7 @@ export interface Whiteboard {
   owner: string;
   title: string;
   dateCreated: Date;
-  content: Pixel[][];
+  content: string;
   uniqueLink: string;
   accessType: 'read-only' | 'editable';
 }

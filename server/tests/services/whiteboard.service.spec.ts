@@ -1,4 +1,5 @@
 import WhiteboardModel from '../../models/whiteboard.model';
+import { Whiteboard } from '../../types/types';
 import {
   saveWhiteboard,
   getWhiteboardByLink,
@@ -7,8 +8,6 @@ import {
   deleteWhiteboardByLink,
 } from '../../services/whiteboard.service';
 import { whiteboard, whiteboard2 } from '../mockData.models';
-import { Whiteboard } from '@fake-stack-overflow/shared';
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mockingoose = require('mockingoose');
 
