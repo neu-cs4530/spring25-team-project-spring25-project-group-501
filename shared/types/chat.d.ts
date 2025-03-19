@@ -101,6 +101,27 @@ export interface GetChatByParticipantsRequest extends Request {
 }
 
 /**
+ * Express request for changing a user's role in a chat.
+ * - `body`: Contains the `role` to change the user to and the `username` of the user to change.
+ * - `chatId` is passed in the route params.
+ */
+export interface ChangeUserRoleRequest extends ChatIdRequest {
+  body: {
+    role: Role;
+    username: string;
+  };
+}
+/**
+ * Express request for deleting a message from a chat.
+ * - `params`: Contains the `messageId` of the message to be deleted and `chatId` of the chat.
+ */
+export interface DeleteMessageRequest extends Request {
+  params: {
+    chatId: string;
+    messageId: string;
+  };
+}
+/**
  * A type representing the possible responses for a Chat operation.
  * - Either a `DatabaseChat` object or an error message.
  */

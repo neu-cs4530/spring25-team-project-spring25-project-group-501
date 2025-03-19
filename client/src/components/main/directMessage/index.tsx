@@ -4,7 +4,9 @@ import useDirectMessage from '../../../hooks/useDirectMessage';
 import ChatsListCard from './chatsListCard';
 import UsersListPage from '../usersListPage';
 import MessageCard from '../messageCard';
-import Modal from './modal'; // Adjust the import path as needed
+import Modal from './modal';
+import ParticipantManager from './participantManager';
+import useUserContext from '../../../hooks/useUserContext';
 
 const DirectMessage = () => {
   const {
@@ -25,7 +27,19 @@ const DirectMessage = () => {
     selectedUsersToAdd,
     handleSelectedUsersToAdd,
     handleAddSelectedUsers,
+    showManageParticipants,
+    setShowManageParticipants,
+    handleDeleteMessage,
   } = useDirectMessage();
+
+  const { user } = useUserContext();
+  let userPermissions = 'user';
+
+  if (selectedChat) {
+    userPermissions =
+      selectedChat.permissions.find(permission => permission.user === user.username)?.role ||
+      'user';
+  }
 
   return (
     <>
@@ -58,10 +72,24 @@ const DirectMessage = () => {
                 <button className='custom-button' onClick={() => setShowAddParticipants(true)}>
                   Add Participants
                 </button>
+                {userPermissions === 'admin' && (
+                  <button className='custom-button' onClick={() => setShowManageParticipants(true)}>
+                    Manage Users
+                  </button>
+                )}
               </span>
               <div className='chat-messages'>
                 {selectedChat.messages.map(message => (
-                  <MessageCard key={String(message._id)} message={message} />
+                  <MessageCard
+                    key={String(message._id)}
+                    message={message}
+                    canDelete={
+                      userPermissions === 'admin' ||
+                      userPermissions === 'moderator' ||
+                      message.msgFrom === user.username
+                    }
+                    onDelete={() => handleDeleteMessage(userPermissions, message._id)}
+                  />
                 ))}
               </div>
               <div className='message-input'>
@@ -97,6 +125,11 @@ const DirectMessage = () => {
           </button>
         </div>
       </Modal>
+      {selectedChat && (
+        <Modal isOpen={showManageParticipants} onClose={() => setShowManageParticipants(false)}>
+          <ParticipantManager chat={selectedChat} />
+        </Modal>
+      )}
     </>
   );
 };

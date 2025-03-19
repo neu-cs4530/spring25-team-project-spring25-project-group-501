@@ -10,7 +10,6 @@ import {
   Role,
 } from '../types/types';
 import { saveMessage } from './message.service';
-import { user } from '../tests/mockData.models';
 
 /**
  * Saves a new chat, storing any messages provided as part of the argument.
@@ -36,6 +35,7 @@ export const saveChat = async (chatPayload: Chat): Promise<ChatResponse> => {
     return await ChatModel.create({
       participants: chatPayload.participants,
       messages: messageIds,
+      permissions: chatPayload.permissions,
     });
   } catch (error) {
     return { error: `Error saving chat: ${error}` };
@@ -171,5 +171,26 @@ export const changeUserRole = async (
     return updatedChat;
   } catch (error) {
     return { error: `Error changing user role: ${(error as Error).message}` };
+  }
+};
+
+export const deleteChatMessage = async (
+  chatId: string,
+  messageId: string,
+): Promise<ChatResponse> => {
+  try {
+    const updatedChat: DatabaseChat | null = await ChatModel.findByIdAndUpdate(
+      chatId,
+      { $pull: { messages: messageId } },
+      { new: true },
+    );
+
+    if (!updatedChat) {
+      throw new Error('Chat not found');
+    }
+
+    return updatedChat;
+  } catch (error) {
+    return { error: `Error deleting message from chat: ${(error as Error).message}` };
   }
 };

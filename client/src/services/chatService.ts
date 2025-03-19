@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { Message, PopulatedDatabaseChat } from '../types/types';
+import { Message, PopulatedDatabaseChat, Role } from '../types/types';
 import api from './config';
 
 const CHAT_API_URL = `${process.env.REACT_APP_SERVER_URL}/chat`;
@@ -95,6 +95,36 @@ export const addParticipantToChat = async (
 
   if (res.status !== 200) {
     throw new Error('Error when adding participant to chat');
+  }
+
+  return res.data;
+};
+
+export const deleteChatMessage = async (
+  chatID: ObjectId,
+  messageID: ObjectId,
+): Promise<PopulatedDatabaseChat> => {
+  const res = await api.delete(`${CHAT_API_URL}/${chatID}/message/${messageID}`);
+
+  if (res.status !== 200) {
+    throw new Error('Error when deleting message from chat');
+  }
+
+  return res.data;
+};
+
+export const updateUserPermission = async (
+  chatID: ObjectId,
+  username: string,
+  role: Role,
+): Promise<PopulatedDatabaseChat> => {
+  const res = await api.patch(`${CHAT_API_URL}/${chatID}/changeUserRole`, {
+    username,
+    role,
+  });
+
+  if (res.status !== 200) {
+    throw new Error('Error when updating user permission');
   }
 
   return res.data;

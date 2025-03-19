@@ -5,6 +5,8 @@ import {
   getChat,
   addParticipantToChat,
   getChatsByParticipants,
+  changeUserRole,
+  deleteChatMessage,
 } from '../services/chat.service';
 import { populateDocument } from '../utils/database.util';
 import {
@@ -15,6 +17,8 @@ import {
   ChatIdRequest,
   GetChatByParticipantsRequest,
   PopulatedDatabaseChat,
+  DeleteMessageRequest,
+  ChangeUserRoleRequest,
 } from '../types/types';
 import { saveMessage } from '../services/message.service';
 
@@ -79,7 +83,6 @@ const chatController = (socket: FakeSOSocket) => {
       res.status(400).send('Invalid chat creation request');
       return;
     }
-
     const { participants, messages, permissions } = req.body;
     const formattedMessages = messages.map(m => ({ ...m, type: 'direct' as 'direct' | 'global' }));
 
@@ -250,6 +253,70 @@ const chatController = (socket: FakeSOSocket) => {
     }
   };
 
+  /**
+   * Changes a user's role in a chat
+   */
+  const changeUserRoleRoute = async (req: ChangeUserRoleRequest, res: Response): Promise<void> => {
+    const { chatId } = req.params;
+    const { username, role } = req.body;
+    if (!chatId || !username || !role) {
+      res.status(400).send('Missing required fields: chatId, username or role');
+      return;
+    }
+    try {
+      const updatedChat = await changeUserRole(chatId, username, role);
+      if ('error' in updatedChat) {
+        throw new Error(updatedChat.error);
+      }
+
+      const populatedChat = await populateDocument(updatedChat._id.toString(), 'chat');
+
+      if ('error' in populatedChat) {
+        throw new Error(populatedChat.error);
+      }
+
+      // Broadcast the update on the socket
+      socket.emit('chatUpdate', {
+        chat: populatedChat as PopulatedDatabaseChat,
+        type: 'changeUserRole',
+      });
+      res.json(updatedChat);
+    } catch (error: unknown) {
+      res.status(500).send(`Error changing user role: ${(error as Error).message}`);
+    }
+  };
+  /**
+   * Deletes a message from the chat
+   */
+  const deleteChatMessageRoute = async (
+    req: DeleteMessageRequest,
+    res: Response,
+  ): Promise<void> => {
+    const { chatId, messageId } = req.params;
+    if (!chatId || !messageId) {
+      res.status(400).send('Missing required parameters: chatId or messageId');
+      return;
+    }
+    try {
+      const updatedChat = await deleteChatMessage(chatId, messageId);
+
+      if ('error' in updatedChat) {
+        throw new Error(updatedChat.error);
+      }
+
+      const populatedChat = await populateDocument(updatedChat._id.toString(), 'chat');
+
+      if ('error' in populatedChat) {
+        throw new Error(populatedChat.error);
+      }
+
+      socket.emit('chatUpdate', { chat: populatedChat as PopulatedDatabaseChat, type: 'deleted' });
+      res.json(updatedChat);
+    } catch (error: unknown) {
+      res.status(500).send(`Error deleting message from chat: ${(error as Error).message}`);
+    }
+  };
+
   socket.on('connection', conn => {
     conn.on('joinChat', (chatID: string) => {
       conn.join(chatID);
@@ -268,6 +335,8 @@ const chatController = (socket: FakeSOSocket) => {
   router.get('/:chatId', getChatRoute);
   router.post('/:chatId/addParticipant', addParticipantToChatRoute);
   router.get('/getChatsByUser/:username', getChatsByUserRoute);
+  router.patch('/:chatId/changeUserRole', changeUserRoleRoute);
+  router.delete('/:chatId/message/:messageId', deleteChatMessageRoute);
 
   return router;
 };

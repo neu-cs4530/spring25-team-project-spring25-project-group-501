@@ -13,6 +13,7 @@ import {
   getChatsByUser,
   sendMessage,
   addParticipantToChat,
+  deleteChatMessage,
 } from '../services/chatService';
 
 /**
@@ -30,6 +31,7 @@ const useDirectMessage = () => {
   const [error, setError] = useState<string | null>(null);
   const [showAddParticipants, setShowAddParticipants] = useState(false);
   const [selectedUsersToAdd, setSelectedUsersToAdd] = useState<string[]>([]);
+  const [showManageParticipants, setShowManageParticipants] = useState(false);
 
   const handleJoinChat = (chatID: ObjectId) => {
     socket.emit('joinChat', String(chatID));
@@ -112,6 +114,23 @@ const useDirectMessage = () => {
     });
   };
 
+  const handleDeleteMessage = async (currentUserPermission: string, messageId: ObjectId) => {
+    if (!selectedChat?._id) {
+      setError('Invalid chat ID');
+      return;
+    }
+    if (currentUserPermission !== 'moderator' && currentUserPermission !== 'admin') {
+      setError('You do not have permission to delete messages.');
+      return;
+    }
+    try {
+      await deleteChatMessage(selectedChat._id, messageId);
+      setError(null);
+    } catch (err) {
+      setError('Failed to delete message.');
+    }
+  };
+
   useEffect(() => {
     const fetchChats = async () => {
       const userChats = await getChatsByUser(user.username);
@@ -128,7 +147,9 @@ const useDirectMessage = () => {
           }
           return;
         }
-        case 'newMessage': {
+        case 'newMessage':
+        case 'deleted':
+        case 'changeUserRole': {
           setSelectedChat(chat);
           return;
         }
@@ -177,6 +198,9 @@ const useDirectMessage = () => {
     selectedUsersToAdd,
     handleSelectedUsersToAdd,
     handleAddSelectedUsers,
+    showManageParticipants,
+    setShowManageParticipants,
+    handleDeleteMessage,
   };
 };
 
