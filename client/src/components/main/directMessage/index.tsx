@@ -4,11 +4,8 @@ import useDirectMessage from '../../../hooks/useDirectMessage';
 import ChatsListCard from './chatsListCard';
 import UsersListPage from '../usersListPage';
 import MessageCard from '../messageCard';
+import Modal from './modal'; // Adjust the import path as needed
 
-/**
- * DirectMessage component renders a page for direct messaging or group chats between users.
- * It includes a list of users and a chat window to send and receive messages.
- */
 const DirectMessage = () => {
   const {
     selectedChat,
@@ -23,14 +20,17 @@ const DirectMessage = () => {
     handleUserSelect,
     handleCreateChat,
     error,
+    showAddParticipants,
+    setShowAddParticipants,
+    selectedUsersToAdd,
+    handleSelectedUsersToAdd,
+    handleAddSelectedUsers,
   } = useDirectMessage();
 
   return (
     <>
       <div className='create-panel'>
-        <button
-          className='custom-button'
-          onClick={() => setShowCreatePanel(prevState => !prevState)}>
+        <button className='custom-button' onClick={() => setShowCreatePanel(prev => !prev)}>
           {showCreatePanel ? 'Hide Create Chat Panel' : 'Start a Chat'}
         </button>
         {error && <div className='direct-message-error'>{error}</div>}
@@ -53,7 +53,12 @@ const DirectMessage = () => {
         <div className='chat-container'>
           {selectedChat ? (
             <>
-              <h2>Chat Participants: {selectedChat.participants.join(', ')}</h2>
+              <span>
+                <h2>Chat Participants: {selectedChat.participants.join(', ')}</h2>
+                <button className='custom-button' onClick={() => setShowAddParticipants(true)}>
+                  Add Participants
+                </button>
+              </span>
               <div className='chat-messages'>
                 {selectedChat.messages.map(message => (
                   <MessageCard key={String(message._id)} message={message} />
@@ -77,6 +82,21 @@ const DirectMessage = () => {
           )}
         </div>
       </div>
+      <Modal isOpen={showAddParticipants} onClose={() => setShowAddParticipants(false)}>
+        <h3>Select Users to Add</h3>
+        <p>Selected users: {selectedUsersToAdd.join(', ') || 'None'}</p>
+        <div className='scrollable-container'>
+          <UsersListPage handleUserSelect={handleSelectedUsersToAdd} />
+        </div>
+        <div className='modal-actions'>
+          <button className='custom-button' onClick={handleAddSelectedUsers}>
+            Add Selected Users
+          </button>
+          <button className='custom-button' onClick={() => setShowAddParticipants(false)}>
+            Cancel
+          </button>
+        </div>
+      </Modal>
     </>
   );
 };

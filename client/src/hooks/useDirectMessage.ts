@@ -12,7 +12,7 @@ import {
   getChatById,
   getChatsByUser,
   sendMessage,
-  addParticipant,
+  addParticipantToChat,
 } from '../services/chatService';
 
 /**
@@ -28,6 +28,8 @@ const useDirectMessage = () => {
   const [chats, setChats] = useState<PopulatedDatabaseChat[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [showAddParticipants, setShowAddParticipants] = useState(false);
+  const [selectedUsersToAdd, setSelectedUsersToAdd] = useState<string[]>([]);
 
   const handleJoinChat = (chatID: ObjectId) => {
     socket.emit('joinChat', String(chatID));
@@ -78,11 +80,36 @@ const useDirectMessage = () => {
     }
 
     const allParticipants = [user.username, ...selectedParticipants];
-    const chat = await createChat(allParticipants);
+    const chat = await createChat(allParticipants, user.username);
     setSelectedChat(chat);
     handleJoinChat(chat._id);
     setSelectedParticipants([]);
     setShowCreatePanel(false);
+  };
+
+  const handleAddSelectedUsers = async () => {
+    if (!selectedChat?._id) {
+      setError('Invalid chat ID');
+      return;
+    }
+    await Promise.all(
+      selectedUsersToAdd.map(username => addParticipantToChat(selectedChat._id, username)),
+    );
+
+    const updatedChat = await getChatById(selectedChat._id);
+    setSelectedChat(updatedChat);
+
+    setShowAddParticipants(false);
+    setSelectedUsersToAdd([]);
+  };
+
+  const handleSelectedUsersToAdd = (selectedUser: SafeDatabaseUser) => {
+    setSelectedUsersToAdd(prev => {
+      if (prev.includes(selectedUser.username)) {
+        return prev.filter(username => username !== selectedUser.username);
+      }
+      return [...prev, selectedUser.username];
+    });
   };
 
   useEffect(() => {
@@ -145,6 +172,11 @@ const useDirectMessage = () => {
     handleUserSelect,
     handleCreateChat,
     error,
+    showAddParticipants,
+    setShowAddParticipants,
+    selectedUsersToAdd,
+    handleSelectedUsersToAdd,
+    handleAddSelectedUsers,
   };
 };
 

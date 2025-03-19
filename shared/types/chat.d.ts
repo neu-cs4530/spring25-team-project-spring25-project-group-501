@@ -12,11 +12,7 @@ export interface MessageInChat extends DatabaseMessage {
   user: Pick<DatabaseUser, '_id' | 'username'> | null;
 }
 
-export enum Role {
-  ADMIN = 'admin',
-  MODERATOR = 'moderator',
-  MEMBER = 'member',
-}
+export type Role = 'user' | 'admin' | 'moderator';
 
 /**
  * Represents a Chat with participants and messages (unpopulated).
@@ -26,7 +22,7 @@ export enum Role {
 export interface Chat {
   participants: string[];
   messages: Message[];
-  permissions?: { user: string; role: Role }[];
+  permissions: { user: string; role: Role }[];
 }
 
 /**
@@ -60,6 +56,7 @@ export interface CreateChatRequest extends Request {
   body: {
     participants: string[];
     messages: Omit<Message, 'type'>[];
+    permissions: { user: string; role: Role }[];
   };
 }
 

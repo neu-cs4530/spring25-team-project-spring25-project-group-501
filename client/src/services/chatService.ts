@@ -66,8 +66,19 @@ export const sendMessage = async (
  * @returns The newly created chat data.
  * @throws Throws an error if the chat creation fails or if the status code is not 200.
  */
-export const createChat = async (participants: string[]): Promise<PopulatedDatabaseChat> => {
-  const res = await api.post(`${CHAT_API_URL}/createChat`, { participants, messages: [] });
+export const createChat = async (
+  participants: string[],
+  owner: string,
+): Promise<PopulatedDatabaseChat> => {
+  const permissions = participants.map(participant => ({
+    user: participant,
+    role: participant === owner ? 'admin' : 'user',
+  }));
+  const res = await api.post(`${CHAT_API_URL}/createChat`, {
+    participants,
+    messages: [],
+    permissions,
+  });
 
   if (res.status !== 200) {
     throw new Error('Error when adding message to chat');
@@ -76,7 +87,7 @@ export const createChat = async (participants: string[]): Promise<PopulatedDatab
   return res.data;
 };
 
-export const addParticipant = async (
+export const addParticipantToChat = async (
   chatID: ObjectId,
   username: string,
 ): Promise<PopulatedDatabaseChat> => {

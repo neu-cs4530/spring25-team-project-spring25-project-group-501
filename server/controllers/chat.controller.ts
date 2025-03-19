@@ -33,8 +33,16 @@ const chatController = (socket: FakeSOSocket) => {
    * @returns `true` if the body contains valid chat fields; otherwise, `false`.
    */
   const isCreateChatRequestValid = (req: CreateChatRequest): boolean => {
-    const { participants, messages } = req.body;
-    return !!participants && Array.isArray(participants) && participants.length > 0 && !!messages;
+    const { participants, messages, permissions } = req.body;
+    return (
+      !!participants &&
+      Array.isArray(participants) &&
+      participants.length > 0 &&
+      !!messages &&
+      !!permissions &&
+      Array.isArray(permissions) &&
+      permissions.length === participants.length
+    );
   };
 
   /**
@@ -72,11 +80,11 @@ const chatController = (socket: FakeSOSocket) => {
       return;
     }
 
-    const { participants, messages } = req.body;
+    const { participants, messages, permissions } = req.body;
     const formattedMessages = messages.map(m => ({ ...m, type: 'direct' as 'direct' | 'global' }));
 
     try {
-      const savedChat = await saveChat({ participants, messages: formattedMessages });
+      const savedChat = await saveChat({ participants, permissions, messages: formattedMessages });
 
       if ('error' in savedChat) {
         throw new Error(savedChat.error);

@@ -10,6 +10,7 @@ import {
   Role,
 } from '../types/types';
 import { saveMessage } from './message.service';
+import { user } from '../tests/mockData.models';
 
 /**
  * Saves a new chat, storing any messages provided as part of the argument.
@@ -107,35 +108,45 @@ export const getChatsByParticipants = async (p: string[]): Promise<DatabaseChat[
 };
 
 /**
- * Adds a participant to an existing chat.
+ * Adds a participant to an existing chat if they are not already included.
  * @param chatId - The ID of the chat to update.
- * @param userId - The user ID to add to the chat.
+ * @param username - The username of the user to add to the chat.
  * @returns {Promise<ChatResponse>} - The updated chat or an error message.
  */
 export const addParticipantToChat = async (
   chatId: string,
-  userId: string,
+  username: string,
 ): Promise<ChatResponse> => {
   try {
     // Validate if user exists
-    const userExists: DatabaseUser | null = await UserModel.findById(userId);
+    const userExists: DatabaseUser | null = await UserModel.findOne({ username });
 
     if (!userExists) {
       throw new Error('User does not exist.');
     }
 
-    // Add participant if not already in the chat
+    // Check if user is already in the chat
+    const existingChat: DatabaseChat | null = await ChatModel.findOne({ _id: chatId });
+
+    if (!existingChat) {
+      throw new Error('Chat not found.');
+    }
+
+    if (existingChat.participants.includes(username)) {
+      // User is already a participant, return the chat as is
+      return existingChat;
+    }
+
+    // Add participant since they're not already in the chat
     const updatedChat: DatabaseChat | null = await ChatModel.findOneAndUpdate(
-      { _id: chatId, participants: { $ne: userId } },
-      { $push: { participants: userId } },
+      { _id: chatId },
+      {
+        $push: { participants: username, permissions: { user: username, role: 'user' } },
+      },
       { new: true }, // Return the updated document
     );
 
-    if (!updatedChat) {
-      throw new Error('Chat not found or user already a participant.');
-    }
-
-    return updatedChat;
+    return updatedChat ?? { error: 'Failed to update chat.' };
   } catch (error) {
     return { error: `Error adding participant to chat: ${(error as Error).message}` };
   }
