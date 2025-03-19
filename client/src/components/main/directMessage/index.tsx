@@ -6,13 +6,13 @@ import UsersListPage from '../usersListPage';
 import MessageCard from '../messageCard';
 
 /**
- * DirectMessage component renders a page for direct messaging between users.
+ * DirectMessage component renders a page for direct messaging or group chats between users.
  * It includes a list of users and a chat window to send and receive messages.
  */
 const DirectMessage = () => {
   const {
     selectedChat,
-    chatToCreate,
+    selectedParticipants,
     chats,
     newMessage,
     setNewMessage,
@@ -36,7 +36,7 @@ const DirectMessage = () => {
         {error && <div className='direct-message-error'>{error}</div>}
         {showCreatePanel && (
           <>
-            <p>Selected user: {chatToCreate}</p>
+            <p>Selected users: {selectedParticipants.join(', ') || 'None'}</p>
             <button className='custom-button' onClick={handleCreateChat}>
               Create New Chat
             </button>

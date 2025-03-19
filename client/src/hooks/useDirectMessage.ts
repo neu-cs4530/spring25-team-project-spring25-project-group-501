@@ -7,17 +7,23 @@ import {
   SafeDatabaseUser,
 } from '../types/types';
 import useUserContext from './useUserContext';
-import { createChat, getChatById, getChatsByUser, sendMessage } from '../services/chatService';
+import {
+  createChat,
+  getChatById,
+  getChatsByUser,
+  sendMessage,
+  addParticipant,
+} from '../services/chatService';
 
 /**
- * useDirectMessage is a custom hook that provides state and functions for direct messaging between users.
+ * useDirectMessage is a custom hook that provides state and functions for direct messaging between two users or a group of users.
  * It includes a selected user, messages, and a new message state.
  */
 
 const useDirectMessage = () => {
   const { user, socket } = useUserContext();
   const [showCreatePanel, setShowCreatePanel] = useState<boolean>(false);
-  const [chatToCreate, setChatToCreate] = useState<string>('');
+  const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
   const [selectedChat, setSelectedChat] = useState<PopulatedDatabaseChat | null>(null);
   const [chats, setChats] = useState<PopulatedDatabaseChat[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -57,18 +63,25 @@ const useDirectMessage = () => {
   };
 
   const handleUserSelect = (selectedUser: SafeDatabaseUser) => {
-    setChatToCreate(selectedUser.username);
+    setSelectedParticipants(prev => {
+      if (prev.includes(selectedUser.username)) {
+        return prev.filter(username => username !== selectedUser.username);
+      }
+      return [...prev, selectedUser.username];
+    });
   };
 
   const handleCreateChat = async () => {
-    if (!chatToCreate) {
-      setError('Please select a user to chat with');
+    if (selectedParticipants.length === 0) {
+      setError('Please select at least one user to chat with');
       return;
     }
 
-    const chat = await createChat([user.username, chatToCreate]);
+    const allParticipants = [user.username, ...selectedParticipants];
+    const chat = await createChat(allParticipants);
     setSelectedChat(chat);
     handleJoinChat(chat._id);
+    setSelectedParticipants([]);
     setShowCreatePanel(false);
   };
 
@@ -121,7 +134,7 @@ const useDirectMessage = () => {
 
   return {
     selectedChat,
-    chatToCreate,
+    selectedParticipants,
     chats,
     newMessage,
     setNewMessage,

@@ -75,3 +75,16 @@ export const createChat = async (participants: string[]): Promise<PopulatedDatab
 
   return res.data;
 };
+
+export const addParticipant = async (
+  chatID: ObjectId,
+  username: string,
+): Promise<PopulatedDatabaseChat> => {
+  const res = await api.post(`${CHAT_API_URL}/${chatID}/addParticipant`, { username });
+
+  if (res.status !== 200) {
+    throw new Error('Error when adding participant to chat');
+  }
+
+  return res.data;
+};
