@@ -22,4 +22,9 @@ const addWhiteboard = async (
   return res.data;
 };
 
-export default addWhiteboard;
+const getWhiteboard = async (uniqueLink: string): Promise<Whiteboard> => {
+  const res = await fetch(`/api/whiteboard/${uniqueLink}`);
+  return await res.json();
+};
+
+export { getWhiteboard, addWhiteboard };

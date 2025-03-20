@@ -17,7 +17,8 @@ import UsersListPage from './main/usersListPage';
 import ProfileSettings from './profileSettings';
 import AllGamesPage from './main/games/allGamesPage';
 import GamePage from './main/games/gamePage';
-import WhiteboardPage from './main/whiteboardPage';
+import WhiteboardPage from './main/whiteboard/whiteboardPage';
+import SpecificWhiteboardPage from './main/whiteboard/specificWhiteboardPage';
 
 const ProtectedRoute = ({
   user,
@@ -68,7 +69,7 @@ const FakeStackOverflow = ({ socket }: { socket: FakeSOSocket | null }) => {
             <Route path='/games' element={<AllGamesPage />} />
             <Route path='/games/:gameID' element={<GamePage />} />
             <Route path='/whiteboard' element={<WhiteboardPage />} />
-            {/* <Route path='/whiteboard/:roomID' element={<SpecificWhiteboardPage />} /> */}
+            <Route path='/whiteboard/:whiteboardID' element={<SpecificWhiteboardPage />} />
           </Route>
         }
       </Routes>

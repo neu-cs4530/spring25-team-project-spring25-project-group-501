@@ -1,19 +1,44 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useRef, useState, useEffect, useContext } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import './index.css';
-import addWhiteboard from '../../../services/whiteboardService';
+import UserContext from '../../../../contexts/UserContext';
+import { getWhiteboard } from '../../../../services/whiteboardService';
 
-const WhiteboardPage = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/naming-convention
+const SpecificWhiteboardPage = () => {
+  const { whiteboardID } = useParams();
+  const [whiteboard, setWhiteboard] = useState<string>('');
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
   const [size, setSize] = useState<number>(2);
   const [color, setColor] = useState<string>('#000000');
-  const [title, setTitle] = useState<string>('');
-  const [accessType, setAccessType] = useState<string>('read-only');
-  const { username } = useParams<{ username: string }>();
-  const [isCreating, setIsCreating] = useState<boolean>(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const user = useContext(UserContext);
+
+  useEffect(() => {
+    const fetchWhiteboard = async () => {
+      if (!whiteboardID) return;
+      const fetchedWhiteboard = await getWhiteboard(whiteboardID);
+      setWhiteboard(JSON.stringify(fetchedWhiteboard));
+    };
+
+    fetchWhiteboard();
+  }, [whiteboardID]);
+
+  useEffect(() => {
+    if (!user) return;
+    if (user.socket && whiteboardID) {
+      user.socket.emit('joinWhiteboard', whiteboardID);
+      user.socket.on('whiteboardContent', (content: string) => {
+        setWhiteboard(content);
+      });
+    }
+
+    return () => {
+      if (user.socket) {
+        user.socket.off('whiteboardContent');
+      }
+    };
+  }, [user?.socket]);
 
   useEffect(() => {
     if (context) {
@@ -38,21 +63,16 @@ const WhiteboardPage = () => {
     }
   }, []);
 
-  const handleCreateWhiteboard = async () => {
-    if (!username) return;
-    console.log('Creating whiteboard 2');
-    const dateCreated = new Date();
-    const uniqueLink = crypto.randomUUID();
-    const content: string = 'content1';
-    const whiteboard = await addWhiteboard(
-      username,
-      title,
-      dateCreated,
-      content,
-      uniqueLink,
-      accessType,
-    );
-  };
+  useEffect(() => {
+    if (context && whiteboard) {
+      const img = new Image();
+      img.src = whiteboard;
+      img.onload = () => {
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clear the canvas
+        context.drawImage(img, 0, 0); // Draw the image on the canvas
+      };
+    }
+  }, [whiteboard, context]);
 
   const startDrawing = (e: React.MouseEvent) => {
     if (context) {
@@ -70,28 +90,18 @@ const WhiteboardPage = () => {
 
   const stopDrawing = () => {
     if (context) {
+      const content = canvasRef.current?.toDataURL();
+      if (content && whiteboardID) {
+        user?.socket?.emit('updateWhiteboard', whiteboardID, content);
+      }
       context.closePath();
       setIsDrawing(false);
     }
   };
 
   return (
-    // <button className='btn-create-whiteboard' onClick={handleCreateWhiteboard}>Create Whiteboard</button>
     <div className='whiteboard-container'>
       <div className='horizontal-flex'>
-        {!isCreating && (
-          <button className='btn-create-whiteboard' onClick={() => setIsCreating(!isCreating)}>
-            Start Creating Whiteboard
-          </button>
-        )}
-        {isCreating && (
-          <button className='btn-create-whiteboard' onClick={handleCreateWhiteboard}>
-            Create Whiteboard
-          </button>
-        )}
-        {isCreating && (
-          <input type='text' value={title} onChange={e => setTitle(e.target.value)}></input>
-        )}
         <div className='horizontal-flex'>
           <p>Size: </p>
           <input
@@ -120,4 +130,4 @@ const WhiteboardPage = () => {
   );
 };
 
-export default WhiteboardPage;
+export default SpecificWhiteboardPage;
