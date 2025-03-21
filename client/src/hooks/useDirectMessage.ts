@@ -14,8 +14,9 @@ import {
   sendMessage,
   addParticipantToChat,
   deleteChatMessage,
+  sendPoll,
 } from '../services/chatService';
-
+import { voteOnPoll } from '../services/messageService';
 /**
  * useDirectMessage is a custom hook that provides state and functions for direct messaging between two users or a group of users.
  * It includes a selected user, messages, and a new message state.
@@ -32,17 +33,71 @@ const useDirectMessage = () => {
   const [showAddParticipants, setShowAddParticipants] = useState(false);
   const [selectedUsersToAdd, setSelectedUsersToAdd] = useState<string[]>([]);
   const [showManageParticipants, setShowManageParticipants] = useState(false);
+  const [showUsersList, setShowUsersList] = useState(false);
+  const [newChatTitle, setNewChatTitle] = useState('');
+  const [showCreatePoll, setShowCreatePoll] = useState<boolean>(false);
 
   const handleJoinChat = (chatID: ObjectId) => {
     socket.emit('joinChat', String(chatID));
   };
 
+  /**
+   * Handle voting on a poll message.
+   * @param messageID - The poll message ID to vote on.
+   * @param optionIndex - The index of the option that the user voted for.
+   */
+  const handleVoteOnPoll = async (messageID: string, optionIndex: number) => {
+    if (!user?.username || !selectedChat) return; // Ensure user context is available and a chat is selected
+    try {
+      await voteOnPoll(messageID, optionIndex, user.username);
+      const chat = await getChatById(selectedChat._id);
+      setSelectedChat(chat);
+      setError(null);
+    } catch (err: unknown) {
+      /* empty */
+    }
+  };
+
+  /**
+   * Handle creating a poll and sending it to the backend.
+   */
+  const handleCreatePoll = async (pollData: { question: string; options: string[] }) => {
+    if (!user?.username || !selectedChat) return;
+
+    // Build the poll message object.
+    const votes: Map<string, number> = new Map();
+    const pollMessage: Message = {
+      msg: 'POLL',
+      msgFrom: user.username,
+      msgDateTime: new Date(),
+      type: 'poll',
+      poll: {
+        question: pollData.question,
+        options: pollData.options.map(optionText => ({ optionText })),
+        votes,
+      },
+    };
+
+    try {
+      // sendPoll should be your service function that sends polls
+      await sendPoll(pollMessage, selectedChat._id);
+      const chat = await getChatById(selectedChat._id);
+      // Update the selected chat with the new poll message
+      setSelectedChat(chat);
+      setShowCreatePoll(false);
+      setError(null);
+    } catch (err: unknown) {
+      setError('Failed to create poll. Please try again.');
+    }
+  };
+
   const handleSendMessage = async () => {
     if (newMessage.trim() && selectedChat?._id) {
-      const message: Omit<Message, 'type'> = {
+      const message: Message = {
         msg: newMessage,
         msgFrom: user.username,
         msgDateTime: new Date(),
+        type: 'direct',
       };
 
       const chat = await sendMessage(message, selectedChat._id);
@@ -80,9 +135,9 @@ const useDirectMessage = () => {
       setError('Please select at least one user to chat with');
       return;
     }
-
     const allParticipants = [user.username, ...selectedParticipants];
-    const chat = await createChat(allParticipants, user.username);
+    const chatName = newChatTitle || `Chat with ${allParticipants.join(', ')}`;
+    const chat = await createChat(allParticipants, user.username, chatName);
     setSelectedChat(chat);
     handleJoinChat(chat._id);
     setSelectedParticipants([]);
@@ -201,6 +256,14 @@ const useDirectMessage = () => {
     showManageParticipants,
     setShowManageParticipants,
     handleDeleteMessage,
+    showUsersList,
+    setShowUsersList,
+    newChatTitle,
+    setNewChatTitle,
+    showCreatePoll,
+    setShowCreatePoll,
+    handleVoteOnPoll,
+    handleCreatePoll,
   };
 };
 

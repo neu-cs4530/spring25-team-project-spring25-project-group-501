@@ -33,6 +33,7 @@ export const saveChat = async (chatPayload: Chat): Promise<ChatResponse> => {
 
     // Create the chat using participant IDs and saved message IDs
     return await ChatModel.create({
+      title: chatPayload.title,
       participants: chatPayload.participants,
       messages: messageIds,
       permissions: chatPayload.permissions,

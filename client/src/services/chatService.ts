@@ -47,7 +47,7 @@ export const getChatById = async (chatID: ObjectId): Promise<PopulatedDatabaseCh
  * @throws Throws an error if the message could not be added to the chat.
  */
 export const sendMessage = async (
-  message: Omit<Message, 'type'>,
+  message: Message,
   chatID: ObjectId,
 ): Promise<PopulatedDatabaseChat> => {
   const res = await api.post(`${CHAT_API_URL}/${chatID}/addMessage`, message);
@@ -69,12 +69,14 @@ export const sendMessage = async (
 export const createChat = async (
   participants: string[],
   owner: string,
+  title: string,
 ): Promise<PopulatedDatabaseChat> => {
   const permissions = participants.map(participant => ({
     user: participant,
     role: participant === owner ? 'admin' : 'user',
   }));
   const res = await api.post(`${CHAT_API_URL}/createChat`, {
+    title,
     participants,
     messages: [],
     permissions,
@@ -127,5 +129,22 @@ export const updateUserPermission = async (
     throw new Error('Error when updating user permission');
   }
 
+  return res.data;
+};
+
+/**
+ * send a poll message.
+ * @param pollMessage - The poll message to send
+ * @returns The poll message
+ * @throws Error if there is an issue sending the poll
+ */
+export const sendPoll = async (
+  message: Message,
+  chatID: ObjectId,
+): Promise<PopulatedDatabaseChat> => {
+  const res = await api.post(`${CHAT_API_URL}/${chatID}/addMessage`, message);
+  if (res.status !== 200) {
+    throw new Error('Error while sending a poll');
+  }
   return res.data;
 };

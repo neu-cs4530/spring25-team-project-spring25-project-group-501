@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ObjectId } from 'mongodb';
-import { deleteChatMessage, updateUserPermission } from '../services/chatService';
+import { updateUserPermission } from '../services/chatService';
 import { Role } from '../types/types';
 
 const useParticipantManager = (chatId: ObjectId, currentUserPermission: string) => {

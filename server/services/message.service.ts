@@ -36,3 +36,46 @@ export const getMessages = async (): Promise<DatabaseMessage[]> => {
     return [];
   }
 };
+
+/**
+ * Votes on a poll message.
+ * @param messageID - The ID of the poll message
+ * @param optionIndex - The index of the option to vote for
+ * @param username - The username of the user voting
+ * @returns {Promise<MessageResponse>} - The updated poll message or an error message
+ */
+export const voteOnPoll = async (
+  messageID: string,
+  optionIndex: number,
+  username: string,
+): Promise<MessageResponse> => {
+  try {
+    const message: DatabaseMessage | null = await MessageModel.findById(messageID);
+
+    if (!message) {
+      throw new Error('Message not found');
+    }
+
+    if (message.type !== 'poll') {
+      throw new Error('Message is not a poll');
+    }
+
+    // add the vote
+    const votes = message.poll?.votes || new Map();
+    votes.set(username, optionIndex);
+
+    const result = await MessageModel.findOneAndUpdate(
+      { _id: messageID },
+      { 'poll.votes': votes },
+      { new: true },
+    );
+
+    if (!result) {
+      throw new Error('Error updating poll votes');
+    }
+
+    return result;
+  } catch (error) {
+    return { error: `Error when voting on poll: ${(error as Error).message}` };
+  }
+};

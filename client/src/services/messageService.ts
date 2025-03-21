@@ -41,4 +41,28 @@ const getMessages = async (): Promise<DatabaseMessage[]> => {
   return res.data;
 };
 
-export { addMessage, getMessages };
+/**
+ * Vote on a poll message.
+ * @param messageID - The ID of the poll message
+ * @param optionIndex - The index of the option to vote for
+ * @param username - The username of the user voting
+ * @returns The updated poll message
+ * @throws Error if there is an issue voting on the poll
+ */
+const voteOnPoll = async (
+  messageID: string,
+  optionIndex: number,
+  username: string,
+): Promise<DatabaseMessage> => {
+  const res = await api.patch(`${MESSAGE_API_URL}/voteOnPoll`, {
+    messageID,
+    optionIndex,
+    username,
+  });
+  if (res.status !== 200) {
+    throw new Error('Error when voting on a poll');
+  }
+  return res.data;
+};
+
+export { addMessage, getMessages, voteOnPoll };

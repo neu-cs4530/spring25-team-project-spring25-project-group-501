@@ -7,6 +7,7 @@ import MessageCard from '../messageCard';
 import Modal from './modal';
 import ParticipantManager from './participantManager';
 import useUserContext from '../../../hooks/useUserContext';
+import CreatePollModal from './poll';
 
 const DirectMessage = () => {
   const {
@@ -30,6 +31,14 @@ const DirectMessage = () => {
     showManageParticipants,
     setShowManageParticipants,
     handleDeleteMessage,
+    showUsersList,
+    setShowUsersList,
+    newChatTitle,
+    setNewChatTitle,
+    showCreatePoll,
+    setShowCreatePoll,
+    handleVoteOnPoll,
+    handleCreatePoll,
   } = useDirectMessage();
 
   const { user } = useUserContext();
@@ -51,9 +60,21 @@ const DirectMessage = () => {
         {showCreatePanel && (
           <>
             <p>Selected users: {selectedParticipants.join(', ') || 'None'}</p>
+
+            {selectedParticipants.length > 1 && (
+              <input
+                className='custom-input small-width'
+                type='text'
+                value={newChatTitle}
+                onChange={e => setNewChatTitle(e.target.value)}
+                placeholder='Enter group chat name'
+              />
+            )}
+            <div></div>
             <button className='custom-button' onClick={handleCreateChat}>
               Create New Chat
             </button>
+
             <UsersListPage handleUserSelect={handleUserSelect} />
           </>
         )}
@@ -68,15 +89,21 @@ const DirectMessage = () => {
           {selectedChat ? (
             <>
               <span>
-                <h2>Chat Participants: {selectedChat.participants.join(', ')}</h2>
+                <h2>{selectedChat.title}</h2>
                 <button className='custom-button' onClick={() => setShowAddParticipants(true)}>
                   Add Participants
                 </button>
+                <button className='custom-button' onClick={() => setShowUsersList(true)}>
+                  Show Participants
+                </button>
                 {userPermissions === 'admin' && (
                   <button className='custom-button' onClick={() => setShowManageParticipants(true)}>
-                    Manage Users
+                    Manage Participants
                   </button>
                 )}
+                <button className='custom-button' onClick={() => setShowCreatePoll(true)}>
+                  Create Poll
+                </button>
               </span>
               <div className='chat-messages'>
                 {selectedChat.messages.map(message => (
@@ -89,6 +116,8 @@ const DirectMessage = () => {
                       message.msgFrom === user.username
                     }
                     onDelete={() => handleDeleteMessage(userPermissions, message._id)}
+                    onVote={handleVoteOnPoll}
+                    currentUser={user.username}
                   />
                 ))}
               </div>
@@ -106,7 +135,7 @@ const DirectMessage = () => {
               </div>
             </>
           ) : (
-            <h2>Select a user to start chatting</h2>
+            <h2>Select a user or users to start chatting</h2>
           )}
         </div>
       </div>
@@ -126,9 +155,31 @@ const DirectMessage = () => {
         </div>
       </Modal>
       {selectedChat && (
-        <Modal isOpen={showManageParticipants} onClose={() => setShowManageParticipants(false)}>
-          <ParticipantManager chat={selectedChat} />
-        </Modal>
+        <>
+          <Modal isOpen={showManageParticipants} onClose={() => setShowManageParticipants(false)}>
+            <ParticipantManager chat={selectedChat} />
+          </Modal>
+          <Modal isOpen={showUsersList} onClose={() => setShowUsersList(false)}>
+            <div className='scrollable-container'>
+              <h3>Chat Participants ({selectedChat.participants.length})</h3>
+              <ul>
+                {selectedChat.participants.map(participant => {
+                  const permission = selectedChat.permissions.find(p => p.user === participant);
+                  return (
+                    <li key={participant}>
+                      {participant} - {permission ? permission.role : 'user'}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </Modal>
+          <CreatePollModal
+            isOpen={showCreatePoll}
+            onClose={() => setShowCreatePoll(false)}
+            onSubmit={handleCreatePoll}
+          />
+        </>
       )}
     </>
   );

@@ -7,6 +7,7 @@ import { Request } from 'express';
  * - `msgFrom`: The username of the user sending the message.
  * - `msgDateTime`: The date and time when the message was sent.
  * - `type`: The type of the message, either 'global' or 'direct'.
+ * - `poll`: Optional poll object if the message is a poll.
  */
 export interface Message {
   msg: string;
@@ -15,7 +16,8 @@ export interface Message {
   type: 'global' | 'direct' | 'poll';
   poll?: {
     question: string;
-    options: { optionText: string; votes: string[] }[];
+    options: { optionText: string }[];
+    votes: Map<string, number>;
   };
 }
 
@@ -26,6 +28,7 @@ export interface Message {
  * - `msgFrom`: The username of the user sending the message.
  * - `msgDateTime`: The date and time when the message was sent.
  * - `type`: The type of the message, either 'global' or 'direct'.
+ * - `poll`: Optional poll object if the message is a poll.
  */
 export interface DatabaseMessage extends Message {
   _id: ObjectId;
@@ -44,5 +47,13 @@ export type MessageResponse = DatabaseMessage | { error: string };
 export interface AddMessageRequest extends Request {
   body: {
     messageToAdd: Omit<Message, 'type'>;
+  };
+}
+
+export interface VoteOnPollRequest extends Request {
+  body: {
+    messageID: string;
+    optionIndex: number;
+    username: string;
   };
 }

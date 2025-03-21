@@ -56,8 +56,8 @@ const chatController = (socket: FakeSOSocket) => {
    */
   const isAddMessageRequestValid = (req: AddMessageRequestToChat): boolean => {
     const { chatId } = req.params;
-    const { msg, msgFrom } = req.body;
-    return !!chatId && !!msg && !!msgFrom;
+    const { msg, msgFrom, type } = req.body;
+    return !!chatId && !!msg && !!msgFrom && !!type;
   };
 
   /**
@@ -83,11 +83,16 @@ const chatController = (socket: FakeSOSocket) => {
       res.status(400).send('Invalid chat creation request');
       return;
     }
-    const { participants, messages, permissions } = req.body;
+    const { title, participants, messages, permissions } = req.body;
     const formattedMessages = messages.map(m => ({ ...m, type: 'direct' as 'direct' | 'global' }));
 
     try {
-      const savedChat = await saveChat({ participants, permissions, messages: formattedMessages });
+      const savedChat = await saveChat({
+        title,
+        participants,
+        permissions,
+        messages: formattedMessages,
+      });
 
       if ('error' in savedChat) {
         throw new Error(savedChat.error);
@@ -124,11 +129,16 @@ const chatController = (socket: FakeSOSocket) => {
     }
 
     const { chatId } = req.params;
-    const { msg, msgFrom, msgDateTime } = req.body;
+    const { msg, msgFrom, msgDateTime, type } = req.body;
 
     try {
-      // Create a new message in the DB
-      const newMessage = await saveMessage({ msg, msgFrom, msgDateTime, type: 'direct' });
+      let newMessage;
+      if (type === 'poll') {
+        const { poll } = req.body;
+        newMessage = await saveMessage({ msg, msgFrom, msgDateTime, type, poll });
+      } else {
+        newMessage = await saveMessage({ msg, msgFrom, msgDateTime, type });
+      }
 
       if ('error' in newMessage) {
         throw new Error(newMessage.error);

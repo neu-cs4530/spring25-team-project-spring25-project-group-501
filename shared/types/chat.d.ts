@@ -20,6 +20,7 @@ export type Role = 'user' | 'admin' | 'moderator';
  * - `messages`: Array of `Message` objects.
  */
 export interface Chat {
+  title: string;
   participants: string[];
   messages: Message[];
   permissions: { user: string; role: Role }[];
@@ -54,6 +55,7 @@ export interface PopulatedDatabaseChat extends Omit<DatabaseChat, 'messages'> {
  */
 export interface CreateChatRequest extends Request {
   body: {
+    title: string;
     participants: string[];
     messages: Omit<Message, 'type'>[];
     permissions: { user: string; role: Role }[];
@@ -76,7 +78,7 @@ export interface ChatIdRequest extends Request {
  * - `chatId` is passed in the route params.
  */
 export interface AddMessageRequestToChat extends ChatIdRequest {
-  body: Omit<Message, 'type'>;
+  body: Message;
 }
 
 /**

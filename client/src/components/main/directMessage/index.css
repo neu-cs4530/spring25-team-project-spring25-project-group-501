@@ -75,7 +75,7 @@
 
 /* Chat list styles */
 .chats-list {
-  width: 30%;
+  width: 25%;
   background-color: #fff;
   border: 2px solid #ddd;
   border-radius: 8px;
@@ -117,4 +117,8 @@
 .scrollable-container {
   max-height: 300px; /* adjust height as needed */
   overflow-y: auto;
+}
+
+.small-width {
+  width: 40%;
 }
