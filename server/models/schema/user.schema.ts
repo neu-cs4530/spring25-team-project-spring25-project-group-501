@@ -1,3 +1,4 @@
+import { User } from '@fake-stack-overflow/shared';
 import { Schema } from 'mongoose';
 
 /**
@@ -8,6 +9,10 @@ import { Schema } from 'mongoose';
  * - `username`: The username of the user.
  * - `password`: The encrypted password securing the user's account.
  * - `dateJoined`: The date the user joined the platform.
+ * - `biography`: A user's bio information (optional).
+ * - `googleId`: The Google ID for OAuth authentication (optional).
+ * - `email`: The email address of the user (optional).
+ * - `avatarUrl`: URL to the user's profile picture (optional).
  */
 const userSchema: Schema = new Schema(
   {
@@ -18,6 +23,10 @@ const userSchema: Schema = new Schema(
     },
     password: {
       type: String,
+      required(this: User) {
+        // Password is required only if there's no googleId
+        return !this.googleId;
+      },
     },
     dateJoined: {
       type: Date,
@@ -25,6 +34,18 @@ const userSchema: Schema = new Schema(
     biography: {
       type: String,
       default: '',
+    },
+    googleId: {
+      type: String,
+      sparse: true,
+      unique: true,
+    },
+    email: {
+      type: String,
+      sparse: true,
+    },
+    avatarUrl: {
+      type: String,
     },
   },
   { collection: 'User' },
