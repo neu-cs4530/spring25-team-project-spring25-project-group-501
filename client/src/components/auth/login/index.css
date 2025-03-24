@@ -80,6 +80,32 @@ form {
   background-color: #003f7f;
 }
 
+/* OAuth container styles */
+.oauth-container {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.oauth-container p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+#google-signin-button {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+
 /* Signup link styles */
 .signup-link {
   margin-top: 30px; /* Increased spacing */

@@ -206,7 +206,7 @@ export const updateUser = async (
 export const loginWithGoogle = async (
   googleCredentials: GoogleCredentials,
 ): Promise<UserResponse> => {
-  const { googleId, email, name, picture } = googleCredentials;
+  const { googleId, email, picture } = googleCredentials;
 
   try {
     let user = await getUserByGoogleId(googleId);
