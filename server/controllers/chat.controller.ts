@@ -157,6 +157,11 @@ const chatController = (socket: FakeSOSocket) => {
       socket
         .to(chatId)
         .emit('chatUpdate', { chat: populatedChat as PopulatedDatabaseChat, type: 'newMessage' });
+      socket.emit('chatUpdate', {
+        chat: populatedChat as PopulatedDatabaseChat,
+        type: 'notification',
+      });
+
       res.json(populatedChat);
     } catch (err: unknown) {
       res.status(500).send(`Error adding a message to chat: ${(err as Error).message}`);

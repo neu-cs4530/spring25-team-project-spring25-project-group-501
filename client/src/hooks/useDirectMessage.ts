@@ -204,7 +204,8 @@ const useDirectMessage = () => {
         }
         case 'newMessage':
         case 'deleted':
-        case 'changeUserRole': {
+        case 'changeUserRole':
+        case 'notification': {
           setSelectedChat(chat);
           return;
         }
