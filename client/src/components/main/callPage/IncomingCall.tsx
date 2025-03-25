@@ -7,11 +7,15 @@ type IncomingCallProps = {
 };
 
 const Notifications = ({ answerCall, call, callAccepted }: IncomingCallProps) => (
-  <div className='border border-gren-400'>
+  <div>
     {call.isReceivedCall && !callAccepted && (
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <h1>{call.name} is calling: </h1>
-        <button onClick={answerCall}>Answer</button>
+      <div className='flex items-center justify-center border border-black my-2 bg-orange-200 rounded-lg p-4'>
+        <h4 className='text-lg italic'>{call.name} is calling: </h4>
+        <button
+          onClick={answerCall}
+          className='bg-blue-500 hover:bg-blue-700 active:to-blue-900 text-white font-bold py-2 px-4 rounded'>
+          Answer
+        </button>
       </div>
     )}
   </div>

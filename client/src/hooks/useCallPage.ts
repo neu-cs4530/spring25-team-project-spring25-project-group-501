@@ -1,13 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
 import Peer, { SignalData } from 'simple-peer';
+import process from 'process';
 
 import useUserContext from './useUserContext';
+
+window.process = process;
 
 export type CallType = {
   isReceivedCall: boolean;
   from: string;
   name: string | undefined;
   signal: SignalData | undefined;
+  muted?: boolean;
 };
 
 /**
@@ -23,14 +27,15 @@ const useCallPage = ({
   const { user, socket } = useUserContext();
 
   const [stream, setStream] = useState<MediaStream>();
+  const [muted, setMuted] = useState<boolean>(false);
   const [call, setCall] = useState<CallType>({
     isReceivedCall: false,
     from: '',
     name: undefined,
     signal: undefined,
   });
-  const [callAccepted, setCallAccepted] = useState(false);
-  const [callEnded, setCallEnded] = useState(false);
+  const [callAccepted, setCallAccepted] = useState<boolean>(false);
+  const [callEnded, setCallEnded] = useState<boolean>(false);
 
   const connectionRef = useRef<Peer.Instance>();
 
@@ -52,7 +57,7 @@ const useCallPage = ({
     socket.on('callUser', ({ from, name: callerName, signal }) => {
       setCall({ isReceivedCall: true, from, name: callerName, signal });
     });
-  }, [myVideo, socket]);
+  }, [myVideo, socket, muted]);
 
   const callUser = (id: string) => {
     const peer = new Peer({ initiator: true, trickle: false, stream });
@@ -66,7 +71,7 @@ const useCallPage = ({
       });
     });
 
-    peer.on('stream', (currentStream: MediaProvider) => {
+    peer.on('stream', (currentStream: MediaStream) => {
       if (userVideo.current) {
         userVideo.current.srcObject = currentStream;
       }
@@ -88,7 +93,7 @@ const useCallPage = ({
       socket.emit('answerCall', { signal: data, to: call.from });
     });
 
-    peer.on('stream', (currentStream: MediaProvider) => {
+    peer.on('stream', (currentStream: MediaStream) => {
       if (userVideo.current) {
         userVideo.current.srcObject = currentStream;
       }
@@ -104,14 +109,48 @@ const useCallPage = ({
   const leaveCall = () => {
     setCallEnded(true);
     if (connectionRef.current) {
-      connectionRef.current.destroy();
+      connectionRef.current.end();
     }
+  };
+
+  const toggleMuted = () => {
+    setMuted(prevMuted => {
+      const newMuted = !prevMuted;
+
+      if (connectionRef.current) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const peerConnection = (connectionRef.current as any)._pc as RTCPeerConnection | undefined;
+
+        const sender = peerConnection
+          ?.getSenders()
+          .find((s: RTCRtpSender) => s.track?.kind === 'audio');
+
+        if (sender && sender.track) {
+          // Always toggle the track currently being sent
+          sender.track.enabled = !newMuted;
+
+          // Optional: re-send the track only on unmute, just in case
+          if (!newMuted) {
+            const freshTrack = stream?.getAudioTracks()[0];
+            if (freshTrack && freshTrack !== sender.track) {
+              sender.replaceTrack(freshTrack).catch((err: unknown) => {
+                /* Error */
+              });
+            }
+          }
+        }
+      }
+
+      return newMuted;
+    });
   };
 
   return {
     call,
     callAccepted,
     stream,
+    muted,
+    toggleMuted,
     callEnded,
     name: user.username,
     mySocket: socket.id ?? '',

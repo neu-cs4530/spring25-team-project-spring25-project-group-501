@@ -8,12 +8,23 @@ const CallPage = () => {
   const myVideo = useRef<HTMLVideoElement | null>(null);
   const userVideo = useRef<HTMLVideoElement | null>(null);
 
-  const { call, callAccepted, stream, callEnded, name, mySocket, callUser, leaveCall, answerCall } =
-    useCallPage({ myVideo, userVideo });
+  const {
+    call,
+    callAccepted,
+    stream,
+    callEnded,
+    name,
+    mySocket,
+    callUser,
+    leaveCall,
+    answerCall,
+    muted,
+    toggleMuted,
+  } = useCallPage({ myVideo, userVideo });
 
   return (
-    <div>
-      <h1>Call Page</h1>
+    <div className='m-4'>
+      <h1 className='text-2xl font-bold'>Call Page</h1>
       <VideoPlayer
         stream={stream}
         name={name}
@@ -22,13 +33,16 @@ const CallPage = () => {
         call={call}
         callAccepted={callAccepted}
         callEnded={callEnded}
+        muted={muted}
       />
       <Options
         mySocket={mySocket}
         callAccepted={callAccepted}
         callEnded={callEnded}
         leaveCall={leaveCall}
-        callUser={callUser}>
+        callUser={callUser}
+        muted={muted}
+        toggleMuted={toggleMuted}>
         <IncomingCall answerCall={answerCall} call={call} callAccepted={callAccepted} />
       </Options>
     </div>
