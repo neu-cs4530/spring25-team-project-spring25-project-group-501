@@ -1,6 +1,14 @@
 import express, { Response, Request } from 'express';
-import { FakeSOSocket, AddMessageRequest, Message } from '../types/types';
-import { saveMessage, getMessages } from '../services/message.service';
+import {
+  FakeSOSocket,
+  AddMessageRequest,
+  Message,
+  VoteOnPollRequest,
+  PopulatedDatabaseChat,
+} from '../types/types';
+import { saveMessage, getMessages, voteOnPoll } from '../services/message.service';
+import { getChat } from '../services/chat.service';
+import { populateDocument } from '../utils/database.util';
 
 const messageController = (socket: FakeSOSocket) => {
   const router = express.Router();
@@ -78,9 +86,43 @@ const messageController = (socket: FakeSOSocket) => {
     res.json(messages);
   };
 
+  const voteOnPollRoute = async (req: VoteOnPollRequest, res: Response): Promise<void> => {
+    const { chatID, messageID, optionIndex, username } = req.body;
+
+    try {
+      const msgFromDb = await voteOnPoll(messageID, optionIndex, username);
+
+      if ('error' in msgFromDb) {
+        throw new Error(msgFromDb.error);
+      }
+
+      const chat = await getChat(chatID);
+      if ('error' in chat) {
+        throw new Error(chat.error);
+      }
+
+      const populatedChat = await populateDocument(chat._id.toString(), 'chat');
+
+      if ('error' in populatedChat) {
+        throw new Error(populatedChat.error);
+      }
+
+      socket
+        .to(chatID)
+        .emit('chatUpdate', { chat: populatedChat as PopulatedDatabaseChat, type: 'newMessage' });
+
+      socket.emit('messageUpdate', { msg: msgFromDb });
+
+      res.json(msgFromDb);
+    } catch (err: unknown) {
+      res.status(500).send(`Error when voting on a poll: ${(err as Error).message}`);
+    }
+  };
+
   // Add appropriate HTTP verbs and their endpoints to the router
   router.post('/addMessage', addMessageRoute);
   router.get('/getMessages', getMessagesRoute);
+  router.patch('/voteOnPoll', voteOnPollRoute);
 
   return router;
 };

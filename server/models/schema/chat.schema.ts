@@ -9,6 +9,10 @@ import { Schema } from 'mongoose';
  */
 const chatSchema = new Schema(
   {
+    title: {
+      type: String,
+      required: true,
+    },
     participants: [
       {
         type: String,
@@ -21,6 +25,7 @@ const chatSchema = new Schema(
         ref: 'Message',
       },
     ],
+    permissions: [{ user: String, role: String }],
   },
   {
     collection: 'Chat',

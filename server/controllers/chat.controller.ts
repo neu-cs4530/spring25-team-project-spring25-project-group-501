@@ -5,6 +5,8 @@ import {
   getChat,
   addParticipantToChat,
   getChatsByParticipants,
+  changeUserRole,
+  deleteChatMessage,
 } from '../services/chat.service';
 import { populateDocument } from '../utils/database.util';
 import {
@@ -15,6 +17,8 @@ import {
   ChatIdRequest,
   GetChatByParticipantsRequest,
   PopulatedDatabaseChat,
+  DeleteMessageRequest,
+  ChangeUserRoleRequest,
 } from '../types/types';
 import { saveMessage } from '../services/message.service';
 
@@ -33,8 +37,16 @@ const chatController = (socket: FakeSOSocket) => {
    * @returns `true` if the body contains valid chat fields; otherwise, `false`.
    */
   const isCreateChatRequestValid = (req: CreateChatRequest): boolean => {
-    const { participants, messages } = req.body;
-    return !!participants && Array.isArray(participants) && participants.length > 0 && !!messages;
+    const { participants, messages, permissions } = req.body;
+    return (
+      !!participants &&
+      Array.isArray(participants) &&
+      participants.length > 0 &&
+      !!messages &&
+      !!permissions &&
+      Array.isArray(permissions) &&
+      permissions.length === participants.length
+    );
   };
 
   /**
@@ -44,8 +56,8 @@ const chatController = (socket: FakeSOSocket) => {
    */
   const isAddMessageRequestValid = (req: AddMessageRequestToChat): boolean => {
     const { chatId } = req.params;
-    const { msg, msgFrom } = req.body;
-    return !!chatId && !!msg && !!msgFrom;
+    const { msg, msgFrom, type } = req.body;
+    return !!chatId && !!msg && !!msgFrom && !!type;
   };
 
   /**
@@ -71,12 +83,16 @@ const chatController = (socket: FakeSOSocket) => {
       res.status(400).send('Invalid chat creation request');
       return;
     }
-
-    const { participants, messages } = req.body;
+    const { title, participants, messages, permissions } = req.body;
     const formattedMessages = messages.map(m => ({ ...m, type: 'direct' as 'direct' | 'global' }));
 
     try {
-      const savedChat = await saveChat({ participants, messages: formattedMessages });
+      const savedChat = await saveChat({
+        title,
+        participants,
+        permissions,
+        messages: formattedMessages,
+      });
 
       if ('error' in savedChat) {
         throw new Error(savedChat.error);
@@ -113,11 +129,16 @@ const chatController = (socket: FakeSOSocket) => {
     }
 
     const { chatId } = req.params;
-    const { msg, msgFrom, msgDateTime } = req.body;
+    const { msg, msgFrom, msgDateTime, type } = req.body;
 
     try {
-      // Create a new message in the DB
-      const newMessage = await saveMessage({ msg, msgFrom, msgDateTime, type: 'direct' });
+      let newMessage;
+      if (type === 'poll') {
+        const { poll } = req.body;
+        newMessage = await saveMessage({ msg, msgFrom, msgDateTime, type, poll });
+      } else {
+        newMessage = await saveMessage({ msg, msgFrom, msgDateTime, type });
+      }
 
       if ('error' in newMessage) {
         throw new Error(newMessage.error);
@@ -133,9 +154,18 @@ const chatController = (socket: FakeSOSocket) => {
       // Enrich the updated chat for the response
       const populatedChat = await populateDocument(updatedChat._id.toString(), 'chat');
 
+      if ('error' in populatedChat) {
+        throw new Error(populatedChat.error);
+      }
+
       socket
         .to(chatId)
         .emit('chatUpdate', { chat: populatedChat as PopulatedDatabaseChat, type: 'newMessage' });
+      socket.emit('chatUpdate', {
+        chat: populatedChat as PopulatedDatabaseChat,
+        type: 'notification',
+      });
+
       res.json(populatedChat);
     } catch (err: unknown) {
       res.status(500).send(`Error adding a message to chat: ${(err as Error).message}`);
@@ -242,6 +272,66 @@ const chatController = (socket: FakeSOSocket) => {
     }
   };
 
+  /**
+   * Changes a user's role in a chat
+   */
+  const changeUserRoleRoute = async (req: ChangeUserRoleRequest, res: Response): Promise<void> => {
+    const { chatId } = req.params;
+    const { username, role } = req.body;
+    if (!chatId || !username || !role) {
+      res.status(400).send('Missing required fields: chatId, username or role');
+      return;
+    }
+    try {
+      const updatedChat = await changeUserRole(chatId, username, role);
+      if ('error' in updatedChat) {
+        throw new Error(updatedChat.error);
+      }
+
+      const populatedChat = await populateDocument(updatedChat._id.toString(), 'chat');
+
+      if ('error' in populatedChat) {
+        throw new Error(populatedChat.error);
+      }
+
+      // Broadcast the update on the socket
+      socket.emit('chatUpdate', {
+        chat: populatedChat as PopulatedDatabaseChat,
+        type: 'changeUserRole',
+      });
+      res.json(updatedChat);
+    } catch (error: unknown) {
+      res.status(500).send(`Error changing user role: ${(error as Error).message}`);
+    }
+  };
+  /**
+   * Deletes a message from the chat
+   */
+  const deleteChatMessageRoute = async (
+    req: DeleteMessageRequest,
+    res: Response,
+  ): Promise<void> => {
+    const { chatId, messageId } = req.params;
+    try {
+      const updatedChat = await deleteChatMessage(chatId, messageId);
+
+      if ('error' in updatedChat) {
+        throw new Error(updatedChat.error);
+      }
+
+      const populatedChat = await populateDocument(updatedChat._id.toString(), 'chat');
+
+      if ('error' in populatedChat) {
+        throw new Error(populatedChat.error);
+      }
+
+      socket.emit('chatUpdate', { chat: populatedChat as PopulatedDatabaseChat, type: 'deleted' });
+      res.json(updatedChat);
+    } catch (error: unknown) {
+      res.status(500).send(`Error deleting message from chat: ${(error as Error).message}`);
+    }
+  };
+
   socket.on('connection', conn => {
     conn.on('joinChat', (chatID: string) => {
       conn.join(chatID);
@@ -260,6 +350,8 @@ const chatController = (socket: FakeSOSocket) => {
   router.get('/:chatId', getChatRoute);
   router.post('/:chatId/addParticipant', addParticipantToChatRoute);
   router.get('/getChatsByUser/:username', getChatsByUserRoute);
+  router.patch('/:chatId/changeUserRole', changeUserRoleRoute);
+  router.delete('/:chatId/message/:messageId', deleteChatMessageRoute);
 
   return router;
 };

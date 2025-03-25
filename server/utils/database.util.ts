@@ -92,6 +92,7 @@ const populateChat = async (chatID: string): Promise<PopulatedDatabaseChat | nul
               username: userDoc.username,
             }
           : null,
+        poll: messageDoc.type === 'poll' ? messageDoc.poll : undefined,
       };
     }),
   );
