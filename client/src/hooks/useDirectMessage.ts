@@ -49,7 +49,7 @@ const useDirectMessage = () => {
   const handleVoteOnPoll = async (messageID: string, optionIndex: number) => {
     if (!user?.username || !selectedChat) return; // Ensure user context is available and a chat is selected
     try {
-      await voteOnPoll(messageID, optionIndex, user.username);
+      await voteOnPoll(selectedChat._id.toString(), messageID, optionIndex, user.username);
       const chat = await getChatById(selectedChat._id);
       setSelectedChat(chat);
       setError(null);

@@ -52,6 +52,7 @@ export interface AddMessageRequest extends Request {
 
 export interface VoteOnPollRequest extends Request {
   body: {
+    chatID: string;
     messageID: string;
     optionIndex: number;
     username: string;

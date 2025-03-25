@@ -95,7 +95,7 @@
 .poll-options {
   display: flex;
   flex-direction: column;
-  width: 40%;
+  width: 100%;
 }
 
 /* Poll option button */

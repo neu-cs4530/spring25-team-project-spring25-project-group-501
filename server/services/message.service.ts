@@ -61,7 +61,10 @@ export const voteOnPoll = async (
     }
 
     // add the vote
-    const votes = message.poll?.votes || new Map();
+    if (!message.poll) {
+      throw new Error('Poll data is missing');
+    }
+    const { votes } = message.poll;
     votes.set(username, optionIndex);
 
     const result = await MessageModel.findOneAndUpdate(

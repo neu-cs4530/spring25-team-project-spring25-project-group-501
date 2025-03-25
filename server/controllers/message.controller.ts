@@ -1,6 +1,14 @@
 import express, { Response, Request } from 'express';
-import { FakeSOSocket, AddMessageRequest, Message, VoteOnPollRequest } from '../types/types';
+import {
+  FakeSOSocket,
+  AddMessageRequest,
+  Message,
+  VoteOnPollRequest,
+  PopulatedDatabaseChat,
+} from '../types/types';
 import { saveMessage, getMessages, voteOnPoll } from '../services/message.service';
+import { getChat } from '../services/chat.service';
+import { populateDocument } from '../utils/database.util';
 
 const messageController = (socket: FakeSOSocket) => {
   const router = express.Router();
@@ -79,7 +87,7 @@ const messageController = (socket: FakeSOSocket) => {
   };
 
   const voteOnPollRoute = async (req: VoteOnPollRequest, res: Response): Promise<void> => {
-    const { messageID, optionIndex, username } = req.body;
+    const { chatID, messageID, optionIndex, username } = req.body;
 
     try {
       const msgFromDb = await voteOnPoll(messageID, optionIndex, username);
@@ -87,6 +95,21 @@ const messageController = (socket: FakeSOSocket) => {
       if ('error' in msgFromDb) {
         throw new Error(msgFromDb.error);
       }
+
+      const chat = await getChat(chatID);
+      if ('error' in chat) {
+        throw new Error(chat.error);
+      }
+
+      const populatedChat = await populateDocument(chat._id.toString(), 'chat');
+
+      if ('error' in populatedChat) {
+        throw new Error(populatedChat.error);
+      }
+
+      socket
+        .to(chatID)
+        .emit('chatUpdate', { chat: populatedChat as PopulatedDatabaseChat, type: 'newMessage' });
 
       socket.emit('messageUpdate', { msg: msgFromDb });
 

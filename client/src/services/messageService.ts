@@ -50,11 +50,13 @@ const getMessages = async (): Promise<DatabaseMessage[]> => {
  * @throws Error if there is an issue voting on the poll
  */
 const voteOnPoll = async (
+  chatID: string,
   messageID: string,
   optionIndex: number,
   username: string,
 ): Promise<DatabaseMessage> => {
   const res = await api.patch(`${MESSAGE_API_URL}/voteOnPoll`, {
+    chatID,
     messageID,
     optionIndex,
     username,
