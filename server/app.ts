@@ -53,7 +53,6 @@ socket.on('connection', socket => {
   socket.on('answerCall', ({ to, signal }) => {
     socket.to(to).emit('callAccepted', signal);
   });
-
   socket.on('disconnect', () => {
     console.log('User disconnected');
   });
