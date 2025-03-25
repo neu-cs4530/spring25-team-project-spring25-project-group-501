@@ -100,8 +100,6 @@ export interface GameMovePayload {
  * - `leaveGame`: Client can leave a game.
  * - `joinChat`: Client can join a chat.
  * - `leaveChat`: Client can leave a chat.
- * - `callUser`: Client can call another user.
- * - `answerCall`: Client can answer a call.
  */
 export interface ClientToServerEvents {
   makeMove: (move: GameMovePayload) => void;
@@ -133,8 +131,6 @@ export interface ClientToServerEvents {
  * - `gameUpdate`: Server sends updated game state.
  * - `gameError`: Server sends error message related to game operation.
  * - `chatUpdate`: Server sends updated chat.
- * - `callUser`: Server sends call request to another user.
- * - `callAccepted`: Server sends signal to accept a call.
  */
 export interface ServerToClientEvents {
   questionUpdate: (question: PopulatedDatabaseQuestion) => void;
