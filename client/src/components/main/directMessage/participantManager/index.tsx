@@ -55,9 +55,11 @@ const ParticipantManager = ({ chat }: ParticipantManagerProps) => {
               value={newPermission}
               onChange={e => setNewPermission(e.target.value as Role)}>
               <option value=''>--Select--</option>
-              <option value='user'>User</option>
-              <option value='moderator'>Moderator</option>
-              <option value='admin'>Administrator</option>
+              {['user', 'moderator', 'admin'].map(role => (
+                <option key={role} value={role}>
+                  {role.charAt(0).toUpperCase() + role.slice(1)}
+                </option>
+              ))}
             </select>
           </div>
           <button

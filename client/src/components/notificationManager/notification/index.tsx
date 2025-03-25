@@ -1,5 +1,3 @@
-// First, let's update your Notification component to work with your chat data structure
-// notification.tsx
 import React, { useEffect } from 'react';
 import { PopulatedDatabaseChat } from '@fake-stack-overflow/shared';
 import { useNavigate } from 'react-router-dom';

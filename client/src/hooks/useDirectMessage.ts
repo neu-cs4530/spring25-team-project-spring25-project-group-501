@@ -54,7 +54,7 @@ const useDirectMessage = () => {
       setSelectedChat(chat);
       setError(null);
     } catch (err: unknown) {
-      /* empty */
+      setError('Failed to vote on poll. Please try again.');
     }
   };
 
