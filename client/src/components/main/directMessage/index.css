@@ -1,3 +1,4 @@
+/* General Styling */
 .custom-button {
   background-color: #007bff;
   color: #fff;
@@ -30,7 +31,7 @@
   box-sizing: border-box;
 }
 
-/* Chat panel styles */
+/* Chat Panel Styles */
 .chat-container {
   flex: 1;
   display: flex;
@@ -73,7 +74,7 @@
   align-items: center;
 }
 
-/* Chat list styles */
+/* Chat List Styles */
 .chats-list {
   width: 25%;
   background-color: #fff;
@@ -93,7 +94,7 @@
   background-color: #eaeaea;
 }
 
-/* Create panel styles */
+/* Create Panel Styles */
 .create-panel {
   margin-bottom: 16px;
   padding: 16px;
@@ -119,6 +120,146 @@
   overflow-y: auto;
 }
 
+/* Small Width Input */
 .small-width {
   width: 40%;
+}
+
+/* User Lists / Participant List */
+.selected-users {
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  color: #555;
+  font-size: 16px;
+}
+
+.selected-users ul {
+  list-style: none;
+  padding: 0;
+}
+
+.selected-users li {
+  padding: 8px;
+  margin-bottom: 6px;
+  background-color: #f1f1f1;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.selected-users li:hover {
+  background-color: #eaeaea;
+}
+
+.selected-users li .user-role {
+  font-size: 14px;
+  color: #888;
+}
+
+.selected-users li .remove-user {
+  background-color: #ff4d4d;
+  color: #fff;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.selected-users li .remove-user:hover {
+  background-color: #ff1a1a;
+}
+
+/* Modal Actions */
+.modal-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/* Manage Participants Styles */
+.participant-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.participant-manager h3 {
+  margin-bottom: 12px;
+  font-size: 20px;
+  color: #555;
+}
+
+.participant-manager ul {
+  list-style: none;
+  padding: 0;
+}
+
+.participant-manager li {
+  padding: 8px;
+  background-color: #f1f1f1;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.participant-manager li .participant-role {
+  font-size: 14px;
+  color: #888;
+}
+
+.participant-manager li .remove-participant {
+  background-color: #ff4d4d;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.participant-manager li .remove-participant:hover {
+  background-color: #ff1a1a;
+}
+
+/* Chat Participants Styles */
+.chat-participants {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.chat-participants h3 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  color: #555;
+}
+
+.chat-participants ul {
+  list-style: none;
+  padding: 0;
+}
+
+.chat-participants li {
+  padding: 8px;
+  background-color: #f1f1f1;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.chat-participants li .participant-role {
+  font-size: 14px;
+  color: #888;
 }

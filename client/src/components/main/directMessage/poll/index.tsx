@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Modal from '../modal';
+import './index.css';
 
 interface CreatePollModalProps {
   isOpen: boolean;
@@ -70,16 +71,16 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ isOpen, onClose, onSu
               placeholder={`Option ${index + 1}`}
             />
           ))}
-          <button className='custom-button' onClick={addOption}>
+          <button className='custom-modal-button' onClick={addOption}>
             Add Option
           </button>
           {error && <div className='error-message'>{error}</div>}
         </div>
         <div className='modal-actions'>
-          <button className='custom-button' onClick={handleSubmit}>
+          <button className='custom-modal-button' onClick={handleSubmit}>
             Send Poll
           </button>
-          <button className='custom-button' onClick={onClose}>
+          <button className='custom-modal-button' onClick={onClose}>
             Cancel
           </button>
         </div>

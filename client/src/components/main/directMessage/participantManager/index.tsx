@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import useParticipantManager from '../../../../hooks/useParticipantManager';
 import useUserContext from '../../../../hooks/useUserContext';
 import { PopulatedDatabaseChat, Role } from '../../../../types/types';
+import './index.css';
 
 interface ParticipantManagerProps {
   chat: PopulatedDatabaseChat;
@@ -22,31 +23,18 @@ const ParticipantManager = ({ chat }: ParticipantManagerProps) => {
     <div className='participant-manager'>
       {error && <div className='error'>{error}</div>}
 
-      {currentUserPermission !== 'admin' && <div> Only Administrators can manage users. </div>}
-
-      {/* {(currentUserPermission === 'moderator' || currentUserPermission === 'admin') && (
-        <div className='message-deletion'>
-          <h3>Delete Messages</h3>
-          <ul>
-            {chat.messages.map(message => (
-              <li key={String(message._id)}>
-                <span>
-                  {message.msgFrom}: {message.msg}
-                </span>
-                <button onClick={() => handleDeleteMessage(message._id)}>Delete</button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )} */}
+      {currentUserPermission !== 'admin' && (
+        <div className='permission-error'>Only Administrators can manage users.</div>
+      )}
 
       {currentUserPermission === 'admin' && (
         <div className='permission-management'>
           <h3>Change User Permissions</h3>
-          <div>
+          <div className='form-group'>
             <label htmlFor='userSelect'>Select User: </label>
             <select
               id='userSelect'
+              className='select-input'
               value={selectedUser}
               onChange={e => setSelectedUser(e.target.value)}>
               <option value=''>--Select--</option>
@@ -59,10 +47,11 @@ const ParticipantManager = ({ chat }: ParticipantManagerProps) => {
                 ))}
             </select>
           </div>
-          <div>
+          <div className='form-group'>
             <label htmlFor='newPermission'>New Permission: </label>
             <select
               id='newPermission'
+              className='select-input'
               value={newPermission}
               onChange={e => setNewPermission(e.target.value as Role)}>
               <option value=''>--Select--</option>
@@ -72,6 +61,7 @@ const ParticipantManager = ({ chat }: ParticipantManagerProps) => {
             </select>
           </div>
           <button
+            className='update-button'
             onClick={() => {
               if (selectedUser && newPermission) {
                 handleChangeUserPermission(selectedUser, newPermission);

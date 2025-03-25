@@ -22,7 +22,7 @@ const Notification: React.FC<NotificationProps> = ({
   const lastMessage = chat.messages[chat.messages.length - 1];
 
   useEffect(() => {
-    // Auto-dismiss after specified time if autoDisappear is provided
+    // Auto-dismiss after specified time
     const timer = setTimeout(() => {
       onDismiss();
     }, autoDisappear);

@@ -13,7 +13,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
     <div className='modal-overlay' onClick={onClose}>
       <div className='modal-content' onClick={e => e.stopPropagation()}>
         <button className='modal-close' onClick={onClose}>
-          X
+          <i className='fa-solid fa-x'></i>
         </button>
         {children}
       </div>
