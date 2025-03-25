@@ -147,7 +147,11 @@ export const addParticipantToChat = async (
       { new: true }, // Return the updated document
     );
 
-    return updatedChat ?? { error: 'Failed to update chat.' };
+    if (!updatedChat) {
+      throw new Error('Failed to update chat.');
+    }
+
+    return updatedChat;
   } catch (error) {
     return { error: `Error adding participant to chat: ${(error as Error).message}` };
   }

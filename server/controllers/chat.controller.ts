@@ -154,6 +154,10 @@ const chatController = (socket: FakeSOSocket) => {
       // Enrich the updated chat for the response
       const populatedChat = await populateDocument(updatedChat._id.toString(), 'chat');
 
+      if ('error' in populatedChat) {
+        throw new Error(populatedChat.error);
+      }
+
       socket
         .to(chatId)
         .emit('chatUpdate', { chat: populatedChat as PopulatedDatabaseChat, type: 'newMessage' });
@@ -308,10 +312,6 @@ const chatController = (socket: FakeSOSocket) => {
     res: Response,
   ): Promise<void> => {
     const { chatId, messageId } = req.params;
-    if (!chatId || !messageId) {
-      res.status(400).send('Missing required parameters: chatId or messageId');
-      return;
-    }
     try {
       const updatedChat = await deleteChatMessage(chatId, messageId);
 
