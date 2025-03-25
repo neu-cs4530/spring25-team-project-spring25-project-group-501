@@ -83,6 +83,18 @@ const useCallPage = ({
     });
 
     connectionRef.current = peer;
+
+    peer.on('close', () => {
+      setCallEnded(true);
+
+      if (userVideo.current) {
+        userVideo.current.srcObject = null;
+      }
+    });
+
+    peer.on('error', _ => {
+      setCallEnded(true);
+    });
   };
 
   const answerCall = () => {
@@ -104,12 +116,24 @@ const useCallPage = ({
     }
 
     connectionRef.current = peer;
+
+    peer.on('close', () => {
+      setCallEnded(true);
+
+      if (userVideo.current) {
+        userVideo.current.srcObject = null;
+      }
+    });
+
+    peer.on('error', _ => {
+      setCallEnded(true);
+    });
   };
 
   const leaveCall = () => {
     setCallEnded(true);
     if (connectionRef.current) {
-      connectionRef.current.end();
+      connectionRef.current.destroy();
     }
   };
 
