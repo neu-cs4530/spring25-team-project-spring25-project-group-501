@@ -23,8 +23,12 @@ const addWhiteboard = async (
 };
 
 const getWhiteboard = async (uniqueLink: string): Promise<Whiteboard> => {
-  const res = await fetch(`/api/whiteboard/${uniqueLink}`);
-  return await res.json();
+  const res = await fetch(`${WHITEBOARD_API_URL}/${uniqueLink}`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch whiteboard: ${res.status}`);
+  }
+  console.log('response!!!', res);
+  return res.json();
 };
 
 export { getWhiteboard, addWhiteboard };

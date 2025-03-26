@@ -1,44 +1,49 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import './index.css';
 import UserContext from '../../../../contexts/UserContext';
 import { getWhiteboard } from '../../../../services/whiteboardService';
+import { Whiteboard } from '../../../../types/types';
 
 const SpecificWhiteboardPage = () => {
   const { whiteboardID } = useParams();
   const [whiteboard, setWhiteboard] = useState<string>('');
-  const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
+  const [context, SetContext] = useState<CanvasRenderingContext2D | null>(null);
   const [size, setSize] = useState<number>(2);
   const [color, setColor] = useState<string>('#000000');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const user = useContext(UserContext);
-
+  const [isReadOnly, setIsReadOnly] = useState(false);
+  const [whiteboardObject, setWhiteboardObject] = useState<Whiteboard | null>(null);
   useEffect(() => {
-    const fetchWhiteboard = async () => {
-      if (!whiteboardID) return;
-      const fetchedWhiteboard = await getWhiteboard(whiteboardID);
-      setWhiteboard(JSON.stringify(fetchedWhiteboard));
-    };
+    if (user?.socket && whiteboardID) {
+      const fetchWhiteboard = async () => {
+        const fetchedWhiteboard = await getWhiteboard(whiteboardID);
+        if (fetchedWhiteboard) {
+          if (fetchedWhiteboard.accessType === 'editable') {
+            setIsReadOnly(false);
+          } else {
+            setIsReadOnly(true);
+          }
+          setWhiteboardObject(fetchedWhiteboard);
+        }
+      };
+      fetchWhiteboard();
 
-    fetchWhiteboard();
-  }, [whiteboardID]);
-
-  useEffect(() => {
-    if (!user) return;
-    if (user.socket && whiteboardID) {
-      user.socket.emit('joinWhiteboard', whiteboardID);
-      user.socket.on('whiteboardContent', (content: string) => {
+      user?.socket.emit('joinWhiteboard', whiteboardID);
+      user?.socket.on('whiteboardContent', (content: string) => {
         setWhiteboard(content);
       });
     }
 
     return () => {
-      if (user.socket) {
-        user.socket.off('whiteboardContent');
+      if (user?.socket && whiteboardID) {
+        user?.socket.off('whiteboardContent');
+        user?.socket.emit('leaveWhiteboard', whiteboardID);
       }
     };
-  }, [user?.socket]);
+  }, [user, user?.socket, whiteboardID]);
 
   useEffect(() => {
     if (context) {
@@ -58,7 +63,7 @@ const SpecificWhiteboardPage = () => {
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.lineCap = 'round';
-        setContext(ctx);
+        SetContext(ctx);
       }
     }
   }, []);
@@ -75,6 +80,7 @@ const SpecificWhiteboardPage = () => {
   }, [whiteboard, context]);
 
   const startDrawing = (e: React.MouseEvent) => {
+    if (isReadOnly && whiteboardObject?.owner !== user?.user.username) return;
     if (context) {
       context.beginPath();
       context.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
@@ -83,12 +89,14 @@ const SpecificWhiteboardPage = () => {
   };
 
   const draw = (e: React.MouseEvent) => {
+    if (isReadOnly && whiteboardObject?.owner !== user?.user.username) return;
     if (!isDrawing || !context) return;
     context.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
     context.stroke();
   };
 
   const stopDrawing = () => {
+    if (isReadOnly && whiteboardObject?.owner !== user?.user.username) return;
     if (context) {
       const content = canvasRef.current?.toDataURL();
       if (content && whiteboardID) {
@@ -99,23 +107,39 @@ const SpecificWhiteboardPage = () => {
     }
   };
 
+  const canEdit = !isReadOnly || (isReadOnly && whiteboardObject?.owner === user?.user.username);
+
   return (
     <div className='whiteboard-container'>
-      <div className='horizontal-flex'>
+      {isReadOnly && whiteboardObject?.owner !== user?.user.username && (
+        <p>This whiteboard is read-only.</p>
+      )}
+      {canEdit && (
         <div className='horizontal-flex'>
-          <p>Size: </p>
-          <input
-            type='range'
-            min='1'
-            max='20'
-            value={size}
-            onChange={e => setSize(Number(e.target.value))}></input>
+          <div className='horizontal-flex'>
+            <p>Size: </p>
+            <input
+              type='range'
+              min='1'
+              max='20'
+              value={size}
+              onChange={e => setSize(Number(e.target.value))}></input>
+          </div>
+          <div className='horizontal-flex'>
+            <p>Color: </p>
+            <input type='color' value={color} onChange={e => setColor(e.target.value)}></input>
+          </div>
+          <div className='horizontal-flex'>
+            <p>Toggle Eraser: </p>
+            <input
+              type='checkbox'
+              onChange={e => {
+                setColor(e.target.checked ? '#FFFFFF' : '#000000');
+                setSize(e.target.checked ? 100 : size);
+              }}></input>
+          </div>
         </div>
-        <div className='horizontal-flex'>
-          <p>Color: </p>
-          <input type='color' value={color} onChange={e => setColor(e.target.value)}></input>
-        </div>
-      </div>
+      )}
       <canvas
         ref={canvasRef}
         width={800}

@@ -9,7 +9,7 @@ const WhiteboardPage = () => {
   const user = useContext(UserContext);
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const [title, setTitle] = useState<string>('');
-  const [accessType, setAccessType] = useState<string>('read-only');
+  const [accessType, setAccessType] = useState<string>('editable');
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [isJoining, setIsJoining] = useState<boolean>(false);
   const [joinId, setJoinId] = useState<string>('');
@@ -57,11 +57,7 @@ const WhiteboardPage = () => {
               type='checkbox'
               value={accessType}
               onChange={e => {
-                if (e.target.value === 'true') {
-                  setAccessType('editable');
-                } else {
-                  setAccessType('read-only');
-                }
+                setAccessType(e.target.checked ? 'read-only' : 'editable');
               }}
             />
           </div>
