@@ -28,9 +28,9 @@ const whiteboardController = (socket: FakeSOSocket): Router => {
       if ('error' in whiteboard) {
         throw new Error(whiteboard.error);
       }
-      res.status(201).json(whiteboard);
+      return res.status(201).json(whiteboard);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to create whiteboard' });
+      return res.status(500).json({ error: 'Failed to create whiteboard' });
     }
   };
 
@@ -109,7 +109,7 @@ const whiteboardController = (socket: FakeSOSocket): Router => {
         // Broadcast update to all clients in the room, except sender
         conn.to(whiteboardLink).emit('whiteboardContent', content);
         // Update whiteboard content and save changes
-        await updateWhiteboard(whiteboardLink, { content: content });
+        await updateWhiteboard(whiteboardLink, { content });
       } catch (error) {
         conn.emit('whiteboardError', 'Failed to update whiteboard');
       }
