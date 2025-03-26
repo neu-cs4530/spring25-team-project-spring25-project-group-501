@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useHeader from '../../hooks/useHeader';
 import './index.css';
@@ -13,6 +13,7 @@ const Header = () => {
   const { val, handleInputChange, handleKeyDown, handleSignOut } = useHeader();
   const { user: currentUser } = useUserContext();
   const navigate = useNavigate();
+  const [imageError, setImageError] = useState(false);
 
   return (
     <div id='header' className='header'>
@@ -27,15 +28,13 @@ const Header = () => {
         onKeyDown={handleKeyDown}
       />
       <div className='header-right'>
-        {currentUser.avatarUrl ? (
+        {currentUser.avatarUrl && !imageError ? (
           <img
             src={currentUser.avatarUrl}
             alt='Profile'
             className='profile-picture'
             onClick={() => navigate(`/user/${currentUser.username}`)}
-            onError={e => {
-              e.currentTarget.style.display = 'none';
-            }}
+            onError={() => setImageError(true)}
           />
         ) : (
           <button
