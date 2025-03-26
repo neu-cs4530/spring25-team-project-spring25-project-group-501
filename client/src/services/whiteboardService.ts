@@ -27,7 +27,6 @@ const getWhiteboard = async (uniqueLink: string): Promise<Whiteboard> => {
   if (!res.ok) {
     throw new Error(`Failed to fetch whiteboard: ${res.status}`);
   }
-  console.log('response!!!', res);
   return res.json();
 };
 

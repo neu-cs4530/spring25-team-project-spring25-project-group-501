@@ -1,5 +1,5 @@
-import React, { useRef, useState, useEffect, useContext } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './index.css';
 import { addWhiteboard } from '../../../../services/whiteboardService';
 import UserContext from '../../../../contexts/UserContext';
@@ -7,8 +7,7 @@ import BLANK_CANVAS from '../starting_canvas';
 
 const WhiteboardPage = () => {
   const user = useContext(UserContext);
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  const [title, setTitle] = useState<string>('');
+  const [title, SetTitle] = useState<string>('');
   const [accessType, setAccessType] = useState<string>('editable');
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [isJoining, setIsJoining] = useState<boolean>(false);
@@ -51,7 +50,7 @@ const WhiteboardPage = () => {
         {isCreating && (
           <div className='horizontal-flex'>
             <p>Title: </p>
-            <input type='text' value={title} onChange={e => setTitle(e.target.value)}></input>
+            <input type='text' value={title} onChange={e => SetTitle(e.target.value)}></input>
             <p>Read-only?: </p>
             <input
               type='checkbox'
