@@ -13,6 +13,7 @@ const Header = () => {
   const { val, handleInputChange, handleKeyDown, handleSignOut } = useHeader();
   const { user: currentUser } = useUserContext();
   const navigate = useNavigate();
+
   return (
     <div id='header' className='header'>
       <div></div>
@@ -25,14 +26,28 @@ const Header = () => {
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
       />
-      <button onClick={handleSignOut} className='logout-button'>
-        Log out
-      </button>
-      <button
-        className='view-profile-button'
-        onClick={() => navigate(`/user/${currentUser.username}`)}>
-        View Profile
-      </button>
+      <div className='header-right'>
+        {currentUser.avatarUrl ? (
+          <img
+            src={currentUser.avatarUrl}
+            alt='Profile'
+            className='profile-picture'
+            onClick={() => navigate(`/user/${currentUser.username}`)}
+            onError={e => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        ) : (
+          <button
+            className='view-profile-button'
+            onClick={() => navigate(`/user/${currentUser.username}`)}>
+            View Profile
+          </button>
+        )}
+        <button onClick={handleSignOut} className='logout-button'>
+          Log out
+        </button>
+      </div>
     </div>
   );
 };

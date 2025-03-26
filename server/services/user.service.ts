@@ -211,7 +211,6 @@ export const loginWithGoogle = async (
   try {
     let user = await getUserByGoogleId(googleId);
 
-    // If no user found with Google ID, try to find by email
     if (!user || 'error' in user) {
       user = await getUserByEmail(email);
 

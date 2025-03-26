@@ -27,21 +27,21 @@ const Login = () => {
   const { setUser } = useLoginContext();
   const navigate = useNavigate();
 
-  const handleCredentialResponse = async (response: GoogleCredentialResponse) => {
-    try {
-      // Process the Google login using our service
-      const user = await processGoogleLogin(response.credential);
-
-      setUser(user);
-
-      navigate('/home');
-    } catch (error) {
-      throw new Error(`Error processing Google login: ${error}`);
-    }
-  };
-
   // Initialize Google OAuth
   useEffect(() => {
+    const handleCredentialResponse = async (response: GoogleCredentialResponse) => {
+      try {
+        // Process the Google login using our service
+        const user = await processGoogleLogin(response.credential);
+
+        setUser(user);
+
+        navigate('/home');
+      } catch (error) {
+        throw new Error(`Error processing Google login: ${error}`);
+      }
+    };
+
     const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
     if (clientId) {
@@ -51,7 +51,7 @@ const Login = () => {
     } else {
       throw new Error('Google client ID not found');
     }
-  }, []);
+  }, [navigate, setUser]);
 
   return (
     <div className='container'>

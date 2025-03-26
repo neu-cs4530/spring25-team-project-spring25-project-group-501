@@ -1,14 +1,8 @@
 import axios from 'axios';
 import { SafeDatabaseUser } from '../types/types';
+import { GoogleCredentialResponse } from '../types/google';
 
 const API_URL = process.env.REACT_APP_SERVER_URL;
-
-// Define the Google credential response interface
-export interface GoogleCredentialResponse {
-  credential: string;
-  select_by: string;
-  g_csrf_token: string;
-}
 
 /**
  * Initialize Google OAuth sign-in
@@ -72,39 +66,4 @@ export const processGoogleLogin = async (credential: string): Promise<SafeDataba
   }
 };
 
-// Type definition for Google on the window object
-export interface GoogleAuthWindow extends Window {
-  google?: {
-    accounts: {
-      id: {
-        initialize: (config: {
-          client_id: string;
-          callback: (response: GoogleCredentialResponse) => void;
-        }) => void;
-        renderButton: (
-          element: HTMLElement | null,
-          options: { theme: string; size: string; shape: string },
-        ) => void;
-      };
-    };
-  };
-}
-
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        id: {
-          initialize: (config: {
-            client_id: string;
-            callback: (response: GoogleCredentialResponse) => void;
-          }) => void;
-          renderButton: (
-            element: HTMLElement | null,
-            options: { theme: string; size: string; shape: string },
-          ) => void;
-        };
-      };
-    };
-  }
-}
+export type { GoogleCredentialResponse };

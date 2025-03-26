@@ -118,7 +118,7 @@ describe('loginUser', () => {
 
     const credentials: UserCredentials = {
       username: user.username,
-      password: user.password,
+      password: user.password || '',
     };
 
     const loggedInUser = (await loginUser(credentials)) as SafeDatabaseUser;
@@ -145,7 +145,7 @@ describe('loginUser', () => {
 
     const credentials: UserCredentials = {
       username: 'wrongUsername',
-      password: user.password,
+      password: user.password || '',
     };
 
     const loginError = await loginUser(credentials);

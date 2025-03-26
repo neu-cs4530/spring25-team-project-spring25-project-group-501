@@ -12,6 +12,27 @@
   font-weight: 800;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-picture {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #007bff;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.profile-picture:hover {
+  transform: scale(1.1);
+  border-color: #0056b3;
+}
+
 .logout-button {
   padding: 12px;
   font-size: 16px;
