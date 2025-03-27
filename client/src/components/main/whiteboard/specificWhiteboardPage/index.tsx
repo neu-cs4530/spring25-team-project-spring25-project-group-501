@@ -110,7 +110,7 @@ const SpecificWhiteboardPage = () => {
   const canEdit = !isReadOnly || (isReadOnly && whiteboardObject?.owner === user?.user.username);
 
   return (
-    <div className='whiteboard-container'>
+    <div>
       {isReadOnly && whiteboardObject?.owner !== user?.user.username && (
         <p>This whiteboard is read-only.</p>
       )}
@@ -150,6 +150,13 @@ const SpecificWhiteboardPage = () => {
         onMouseUp={stopDrawing}
         onMouseLeave={stopDrawing}
       />
+      {whiteboardID && (
+        <button
+          className='btn-copy-whiteboard'
+          onClick={e => navigator.clipboard.writeText(whiteboardID)}>
+          Copy Whiteboard ID
+        </button>
+      )}
     </div>
   );
 };
