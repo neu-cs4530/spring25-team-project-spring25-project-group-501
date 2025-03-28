@@ -19,6 +19,7 @@ import AllGamesPage from './main/games/allGamesPage';
 import GamePage from './main/games/gamePage';
 import WhiteboardPage from './main/whiteboard/whiteboardPage';
 import SpecificWhiteboardPage from './main/whiteboard/specificWhiteboardPage';
+import NotificationManager from './notificationManager';
 
 const ProtectedRoute = ({
   user,
@@ -54,7 +55,10 @@ const FakeStackOverflow = ({ socket }: { socket: FakeSOSocket | null }) => {
           <Route
             element={
               <ProtectedRoute user={user} socket={socket}>
-                <Layout />
+                <>
+                  <NotificationManager socket={socket} />
+                  <Layout />
+                </>
               </ProtectedRoute>
             }>
             <Route path='/home' element={<QuestionPage />} />

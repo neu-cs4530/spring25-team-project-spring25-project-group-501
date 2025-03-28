@@ -49,7 +49,7 @@ const SideBarNav = () => {
           <NavLink
             to='/messaging/direct-message'
             className={`menu_button message-options ${isActiveOption('/messaging/direct-message')}`}>
-            Direct Messages
+            Chats
           </NavLink>
         </div>
       )}

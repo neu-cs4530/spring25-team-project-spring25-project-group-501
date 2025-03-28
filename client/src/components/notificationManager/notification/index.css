@@ -1,0 +1,78 @@
+.notifications-wrapper {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 9999;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .notification-container {
+    background: white;
+    border: 2px solid #007bff;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+    width: 320px;  /* Ensures uniform width */
+    transition: opacity 0.3s ease-in-out;
+  }
+  
+  .notification {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    padding: 12px;
+    gap: 8px;
+  }
+  
+  .notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .notification-sender {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .notification-timestamp {
+    font-size: 12px;
+    color: #666;
+  }
+  
+  .notification-text {
+    font-size: 14px;
+    color: #444;
+    margin-top: 4px;
+  }
+  
+  .notification-chat-room {
+    font-size: 12px;
+    font-style: italic;
+    color: #777;
+    margin-top: 4px;
+  }
+  
+  .notification-dismiss {
+    background: none;
+    border: none;
+    color: red;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    align-self: center;  /* Centers the button */
+    margin-top: 10px; /* Adds spacing */
+  }
+  
+  .notification-dismiss:hover {
+    color: darkred;
+  }
+  
