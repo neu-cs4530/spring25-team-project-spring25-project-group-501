@@ -4,7 +4,7 @@ on: # Controls when the action will run.
   push:
     branches:
       - "*"
-      - feature/whiteboard-backend
+      - whiteboard-list
   pull_request:
     branches:
       - "*"

@@ -1,8 +1,10 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './index.css';
 import { addWhiteboard } from '../../../../services/whiteboardService';
 import UserContext from '../../../../contexts/UserContext';
+import { getWhiteboardsByOwner } from '../../../../services/whiteboardService';
+import { Whiteboard } from '../../../../types/types';
 import BLANK_CANVAS from '../starting_canvas';
 
 const WhiteboardPage = () => {
@@ -13,6 +15,19 @@ const WhiteboardPage = () => {
   const [isJoining, setIsJoining] = useState<boolean>(false);
   const [joinId, setJoinId] = useState<string>('');
   const navigate = useNavigate();
+  const [ownedWhiteboards, setOwnedWhiteboards] = useState<Whiteboard[]>([]);
+
+  useEffect(() => {
+    if (user?.user.username) {
+      const fetchWhiteboards = async () => {
+        const fetchedWhiteboard = await getWhiteboardsByOwner(user?.user.username);
+        if (fetchedWhiteboard) {
+          setOwnedWhiteboards(fetchedWhiteboard);
+        }
+      };
+      fetchWhiteboards();
+    }
+  }, [user]);
 
   const handleCreateWhiteboard = async () => {
     if (!user) return;
@@ -80,6 +95,18 @@ const WhiteboardPage = () => {
           </button>
         )}
       </div>
+      <ul>
+        {ownedWhiteboards.map((whiteboard, index) => (
+          <div className='horizontal-flex' key={index}>
+            <p>{whiteboard.title}</p>
+            <button
+              className='btn-create-whiteboard'
+              onClick={() => navigate(`/whiteboard/${whiteboard.uniqueLink}`)}>
+              Join
+            </button>
+          </div>
+        ))}
+      </ul>
     </div>
   );
 };
