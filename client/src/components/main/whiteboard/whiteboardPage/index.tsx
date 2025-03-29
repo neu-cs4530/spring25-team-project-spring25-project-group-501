@@ -1,9 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './index.css';
-import { addWhiteboard } from '../../../../services/whiteboardService';
+import { addWhiteboard, getWhiteboardsByOwner } from '../../../../services/whiteboardService';
 import UserContext from '../../../../contexts/UserContext';
-import { getWhiteboardsByOwner } from '../../../../services/whiteboardService';
 import { Whiteboard } from '../../../../types/types';
 import BLANK_CANVAS from '../starting_canvas';
 
