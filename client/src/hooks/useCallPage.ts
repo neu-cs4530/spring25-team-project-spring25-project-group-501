@@ -90,7 +90,6 @@ const useCallPage = ({
 
     peer.on('stream', (currentStream: MediaProvider) => {
       if (userVideo.current) {
-        console.log('updating user video');
         userVideo.current.srcObject = currentStream;
       }
     });

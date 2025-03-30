@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import useCallPage, { CallType } from '../../../hooks/useCallPage';
+import { CallType } from '../../../hooks/useCallPage';
 
 type VideoPlayerType = {
   stream: MediaStream | undefined;
@@ -45,13 +45,12 @@ const VideoPlayer = ({
       )}
 
       {/* Other User's video */}
-      <div>
-        <h3>{call.name || 'Other user'}</h3>
-        <video ref={userVideo} autoPlay playsInline />
-      </div>
-      {/* {callAccepted && !callEnded && (
-
-      )} */}
+      {callAccepted && !callEnded && (
+        <div>
+          <h3>{call.name || 'Other user'}</h3>
+          <video ref={userVideo} autoPlay playsInline />
+        </div>
+      )}
     </div>
   );
 };

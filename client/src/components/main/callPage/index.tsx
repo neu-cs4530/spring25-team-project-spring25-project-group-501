@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import IncomingCall from './IncomingCall';
 import Options from './Options';
 import VideoPlayer from './VideoPlayer';
