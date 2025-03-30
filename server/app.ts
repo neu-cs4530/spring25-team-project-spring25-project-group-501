@@ -46,6 +46,14 @@ function startServer() {
 socket.on('connection', socket => {
   console.log('A user connected ->', socket.id);
 
+  // TODO: see if it makes sense to use in callController
+  socket.on('callUser', ({ userToCall, signalData, from, name }) => {
+    socket.to(userToCall).emit('callUser', { signal: signalData, from, name });
+  });
+  socket.on('answerCall', ({ to, signal }) => {
+    socket.to(to).emit('callAccepted', signal);
+  });
+
   socket.on('disconnect', () => {
     console.log('User disconnected');
   });
