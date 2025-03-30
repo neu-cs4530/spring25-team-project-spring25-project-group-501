@@ -49,7 +49,7 @@ const SideBarNav = () => {
           <NavLink
             to='/messaging/direct-message'
             className={`menu_button message-options ${isActiveOption('/messaging/direct-message')}`}>
-            Direct Messages
+            Chats
           </NavLink>
         </div>
       )}
@@ -64,6 +64,12 @@ const SideBarNav = () => {
         id='menu_games'
         className={({ isActive }) => `menu_button ${isActive ? 'menu_selected' : ''}`}>
         Games
+      </NavLink>
+      <NavLink
+        to='/whiteboard'
+        id='menu_whiteboard'
+        className={({ isActive }) => `menu_button ${isActive ? 'menu_selected' : ''}`}>
+        Whiteboard
       </NavLink>
     </div>
   );

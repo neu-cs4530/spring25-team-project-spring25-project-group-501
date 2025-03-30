@@ -1,3 +1,4 @@
+/* General message container */
 .message {
   display: flex;
   flex-direction: column;
@@ -8,18 +9,10 @@
   border-radius: 8px;
   background-color: #f9f9f9;
   width: 98%;
+  position: relative; /* Added to position the button correctly */
 }
 
-.message.sender {
-  align-self: flex-end;
-  background-color: #d1e7ff;
-}
-
-.message.receiver {
-  align-self: flex-start;
-  background-color: #ffffff;
-}
-
+/* Message header */
 .message-header {
   display: flex;
   justify-content: space-between;
@@ -39,9 +32,108 @@
   color: #999;
 }
 
+/* Message body */
 .message-body {
   font-size: 1rem;
   color: #333;
   line-height: 1.5;
   word-wrap: break-word;
+}
+
+/* Hover effect for message to show delete button */
+.message:hover .delete-message-button {
+  opacity: 1; /* Show the delete button */
+  visibility: visible;
+}
+
+/* Initially hide the delete button */
+.delete-message-button {
+  background-color: transparent;
+  border: none;
+  color: #666;
+  font-size: 1rem; /* Font size for icon */
+  cursor: pointer;
+  position: absolute; /* Position the button in the top-right corner */
+  top: 20px;
+  right: 10px;
+  opacity: 0; /* Hide by default */
+  visibility: hidden; /* Hide by default */
+  transition: opacity 0.3s ease, visibility 0.3s ease; /* Smooth transition */
+  border-radius: 50%; /* Make the button circular */
+  padding: 5px; /* Adjust padding */
+}
+
+/* Hover effect on the button itself */
+.delete-message-button:hover {
+  background-color: #ff4d4d; /* Red color on hover */
+  color: white; /* White color for icon */
+  transform: scale(1.1); /* Slightly enlarge the button */
+}
+
+/* Poll container */
+.poll-container {
+  margin-top: 10px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f1f1f1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width:80%
+}
+
+/* Poll question */
+.poll-question {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+/* Poll options */
+.poll-options {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Poll option button */
+.poll-option-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover effect on poll option buttons */
+.poll-option-button:hover {
+  background-color: #0056b3;
+}
+
+/* Voted state for poll option buttons */
+.poll-option-button.voted {
+  background-color: #28a745;
+}
+
+/* Vote count next to option text */
+.vote-count {
+  font-size: 0.9rem;
+  color: #fff;
+  background-color: #333;
+  border-radius: 5px;
+  padding: 2px 8px;
+}
+
+/* Optional: Include FontAwesome for the trash icon (ensure FontAwesome is imported in your HTML or project) */
+.fas {
+  font-size: 1.2rem; /* Adjust icon size */
 }

@@ -5,6 +5,7 @@ import { io } from 'socket.io-client';
 import { useEffect, useState } from 'react';
 import FakeStackOverflow from './components/fakestackoverflow';
 import { FakeSOSocket } from './types/types';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const container = document.getElementById('root');
 

@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { Message, PopulatedDatabaseChat } from '../types/types';
+import { Message, PopulatedDatabaseChat, Role } from '../types/types';
 import api from './config';
 
 const CHAT_API_URL = `${process.env.REACT_APP_SERVER_URL}/chat`;
@@ -47,7 +47,7 @@ export const getChatById = async (chatID: ObjectId): Promise<PopulatedDatabaseCh
  * @throws Throws an error if the message could not be added to the chat.
  */
 export const sendMessage = async (
-  message: Omit<Message, 'type'>,
+  message: Message,
   chatID: ObjectId,
 ): Promise<PopulatedDatabaseChat> => {
   const res = await api.post(`${CHAT_API_URL}/${chatID}/addMessage`, message);
@@ -66,12 +66,85 @@ export const sendMessage = async (
  * @returns The newly created chat data.
  * @throws Throws an error if the chat creation fails or if the status code is not 200.
  */
-export const createChat = async (participants: string[]): Promise<PopulatedDatabaseChat> => {
-  const res = await api.post(`${CHAT_API_URL}/createChat`, { participants, messages: [] });
+export const createChat = async (
+  participants: string[],
+  owner: string,
+  title: string,
+): Promise<PopulatedDatabaseChat> => {
+  const permissions = participants.map(participant => ({
+    user: participant,
+    role: participant === owner ? 'admin' : 'user',
+  }));
+  const res = await api.post(`${CHAT_API_URL}/createChat`, {
+    title,
+    participants,
+    messages: [],
+    permissions,
+  });
 
   if (res.status !== 200) {
     throw new Error('Error when adding message to chat');
   }
 
+  return res.data;
+};
+
+export const addParticipantToChat = async (
+  chatID: ObjectId,
+  username: string,
+): Promise<PopulatedDatabaseChat> => {
+  const res = await api.post(`${CHAT_API_URL}/${chatID}/addParticipant`, { username });
+
+  if (res.status !== 200) {
+    throw new Error('Error when adding participant to chat');
+  }
+
+  return res.data;
+};
+
+export const deleteChatMessage = async (
+  chatID: ObjectId,
+  messageID: ObjectId,
+): Promise<PopulatedDatabaseChat> => {
+  const res = await api.delete(`${CHAT_API_URL}/${chatID}/message/${messageID}`);
+
+  if (res.status !== 200) {
+    throw new Error('Error when deleting message from chat');
+  }
+
+  return res.data;
+};
+
+export const updateUserPermission = async (
+  chatID: ObjectId,
+  username: string,
+  role: Role,
+): Promise<PopulatedDatabaseChat> => {
+  const res = await api.patch(`${CHAT_API_URL}/${chatID}/changeUserRole`, {
+    username,
+    role,
+  });
+
+  if (res.status !== 200) {
+    throw new Error('Error when updating user permission');
+  }
+
+  return res.data;
+};
+
+/**
+ * send a poll message.
+ * @param pollMessage - The poll message to send
+ * @returns The poll message
+ * @throws Error if there is an issue sending the poll
+ */
+export const sendPoll = async (
+  message: Message,
+  chatID: ObjectId,
+): Promise<PopulatedDatabaseChat> => {
+  const res = await api.post(`${CHAT_API_URL}/${chatID}/addMessage`, message);
+  if (res.status !== 200) {
+    throw new Error('Error while sending a poll');
+  }
   return res.data;
 };
