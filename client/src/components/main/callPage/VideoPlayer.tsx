@@ -10,6 +10,7 @@ type VideoPlayerType = {
   callAccepted: boolean;
   callEnded: boolean;
   muted: boolean;
+  videoOff: boolean;
 };
 
 const VideoPlayer = ({
@@ -21,14 +22,15 @@ const VideoPlayer = ({
   callAccepted,
   callEnded,
   muted,
+  videoOff,
 }: VideoPlayerType) => {
   useEffect(() => {
-    navigator.mediaDevices.getUserMedia({ video: true, audio: !muted }).then(currentStream => {
+    navigator.mediaDevices.getUserMedia({ video: !videoOff, audio: true }).then(currentStream => {
       if (myVideo.current) {
         myVideo.current.srcObject = currentStream;
       }
     });
-  }, [myVideo, stream, muted]);
+  }, [myVideo, stream, muted, videoOff]);
 
   return (
     <div className='flex flex-col md:flex-row flex-wrap items-center gap-4'>
@@ -41,7 +43,7 @@ const VideoPlayer = ({
             ref={myVideo}
             autoPlay
             playsInline
-            className='border-2 border-blue-700 rounded-lg'
+            className='border-2 border-blue-700 rounded-lg bg-black'
           />
         </div>
       )}

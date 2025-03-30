@@ -8,6 +8,8 @@ type OptionsProps = {
   callUser: (id: string) => void;
   muted: boolean;
   toggleMuted: () => void;
+  videoOff: boolean;
+  toggleVideo: () => void;
   children: React.ReactNode;
 };
 
@@ -34,6 +36,14 @@ const Options = (props: OptionsProps) => {
             }}
             className='bg-blue-500 hover:bg-blue-700 active:to-blue-900 text-white font-bold py-2 px-4 rounded'>
             {props.muted ? 'Unmute' : 'Mute'}
+          </button>
+          <button
+            onClick={e => {
+              e.preventDefault();
+              props.toggleVideo();
+            }}
+            className='bg-blue-500 hover:bg-blue-700 active:to-blue-900 text-white font-bold py-2 px-4 rounded'>
+            {props.videoOff ? 'Enable Video' : 'Disable Video'}
           </button>
         </div>
 

@@ -28,6 +28,7 @@ const useCallPage = ({
 
   const [stream, setStream] = useState<MediaStream>();
   const [muted, setMuted] = useState<boolean>(false);
+  const [videoOff, setVideoOff] = useState<boolean>(false);
   const [call, setCall] = useState<CallType>({
     isReceivedCall: false,
     from: '',
@@ -133,7 +134,11 @@ const useCallPage = ({
   const leaveCall = () => {
     setCallEnded(true);
     if (connectionRef.current) {
-      connectionRef.current.destroy();
+      connectionRef.current.end();
+    }
+
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
     }
   };
 
@@ -169,12 +174,45 @@ const useCallPage = ({
     });
   };
 
+  const toggleVideo = () => {
+    setVideoOff(prevVideoOff => {
+      const newVideoOff = !prevVideoOff;
+
+      if (connectionRef.current) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const peerConnection = (connectionRef.current as any)._pc as RTCPeerConnection | undefined;
+
+        const sender = peerConnection
+          ?.getSenders()
+          .find((s: RTCRtpSender) => s.track?.kind === 'video');
+
+        if (sender && sender.track) {
+          sender.track.enabled = !newVideoOff;
+
+          // Optional: replace track when turning video back on
+          if (!newVideoOff) {
+            const freshTrack = stream?.getVideoTracks()[0];
+            if (freshTrack && freshTrack !== sender.track) {
+              sender.replaceTrack(freshTrack).catch((err: unknown) => {
+                /* Handle error */
+              });
+            }
+          }
+        }
+      }
+
+      return newVideoOff;
+    });
+  };
+
   return {
     call,
     callAccepted,
     stream,
     muted,
     toggleMuted,
+    videoOff,
+    toggleVideo,
     callEnded,
     name: user.username,
     mySocket: socket.id ?? '',

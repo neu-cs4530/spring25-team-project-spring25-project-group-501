@@ -20,6 +20,8 @@ const CallPage = () => {
     answerCall,
     muted,
     toggleMuted,
+    videoOff,
+    toggleVideo,
   } = useCallPage({ myVideo, userVideo });
 
   return (
@@ -34,6 +36,7 @@ const CallPage = () => {
         callAccepted={callAccepted}
         callEnded={callEnded}
         muted={muted}
+        videoOff={videoOff}
       />
       <Options
         mySocket={mySocket}
@@ -42,7 +45,9 @@ const CallPage = () => {
         leaveCall={leaveCall}
         callUser={callUser}
         muted={muted}
-        toggleMuted={toggleMuted}>
+        toggleMuted={toggleMuted}
+        videoOff={videoOff}
+        toggleVideo={toggleVideo}>
         <IncomingCall answerCall={answerCall} call={call} callAccepted={callAccepted} />
       </Options>
     </div>
