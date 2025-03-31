@@ -1,6 +1,7 @@
 import UserModel from '../models/users.model';
 import {
   DatabaseUser,
+  GoogleCredentials,
   SafeDatabaseUser,
   User,
   UserCredentials,
@@ -28,6 +29,9 @@ export const saveUser = async (user: User): Promise<UserResponse> => {
       username: result.username,
       dateJoined: result.dateJoined,
       biography: result.biography,
+      googleId: result.googleId,
+      email: result.email,
+      avatarUrl: result.avatarUrl,
     };
 
     return safeUser;
@@ -53,6 +57,46 @@ export const getUserByUsername = async (username: string): Promise<UserResponse>
     return user;
   } catch (error) {
     return { error: `Error occurred when finding user: ${error}` };
+  }
+};
+
+/**
+ * Retrieves a user from the database by their Google ID.
+ *
+ * @param {string} googleId - The Google ID of the user to find.
+ * @returns {Promise<UserResponse>} - Resolves with the found user object (without the password) or an error message.
+ */
+export const getUserByGoogleId = async (googleId: string): Promise<UserResponse> => {
+  try {
+    const user: SafeDatabaseUser | null = await UserModel.findOne({ googleId }).select('-password');
+
+    if (!user) {
+      throw Error('User not found');
+    }
+
+    return user;
+  } catch (error) {
+    return { error: `Error occurred when finding user: ${error}` };
+  }
+};
+
+/**
+ * Retrieves a user from the database by their email.
+ *
+ * @param {string} email - The email of the user to find.
+ * @returns {Promise<UserResponse>} - Resolves with the found user object (without the password) or an error message.
+ */
+export const getUserByEmail = async (email: string): Promise<UserResponse> => {
+  try {
+    const user: SafeDatabaseUser | null = await UserModel.findOne({ email }).select('-password');
+
+    if (!user) {
+      throw Error('User not found');
+    }
+
+    return user;
+  } catch (error) {
+    return { error: `Error occurred when finding user by email: ${error}` };
   }
 };
 
@@ -147,5 +191,68 @@ export const updateUser = async (
     return updatedUser;
   } catch (error) {
     return { error: `Error occurred when updating user: ${error}` };
+  }
+};
+
+/**
+ * Authenticates or creates a user with Google OAuth credentials.
+ * If a user with the given Google ID exists, they are logged in.
+ * If no user exists with the Google ID but an email match is found, the Google ID is linked to that account.
+ * If no user is found at all, a new user is created with the Google information.
+ *
+ * @param {GoogleCredentials} googleCredentials - The Google OAuth credentials.
+ * @returns {Promise<UserResponse>} - Resolves with the authenticated user object or an error message.
+ */
+export const loginWithGoogle = async (
+  googleCredentials: GoogleCredentials,
+): Promise<UserResponse> => {
+  const { googleId, email, picture } = googleCredentials;
+
+  try {
+    let user = await getUserByGoogleId(googleId);
+
+    if (!user || 'error' in user) {
+      user = await getUserByEmail(email);
+
+      // If a user with the email exists, link the Google ID to that account
+      if (user && !('error' in user)) {
+        user = await updateUser(user.username, {
+          googleId,
+          avatarUrl: picture || user.avatarUrl,
+        });
+
+        if ('error' in user) {
+          throw Error(user.error);
+        }
+      } else {
+        const username = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
+
+        const existingUser = await getUserByUsername(username);
+
+        const finalUsername =
+          existingUser && !('error' in existingUser)
+            ? `${username}${Math.floor(Math.random() * 10000)}`
+            : username;
+
+        const newUser: User = {
+          username: finalUsername,
+          dateJoined: new Date(),
+          googleId,
+          email,
+          biography: '',
+          avatarUrl: picture,
+        };
+
+        user = await saveUser(newUser);
+
+        if ('error' in user) {
+          throw Error(user.error);
+        }
+      }
+    }
+
+    return user;
+  } catch (error) {
+    return { error: `Error occurred during Google authentication: ${error}` };
   }
 };
