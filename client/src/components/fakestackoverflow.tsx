@@ -20,6 +20,7 @@ import GamePage from './main/games/gamePage';
 import WhiteboardPage from './main/whiteboard/whiteboardPage';
 import SpecificWhiteboardPage from './main/whiteboard/specificWhiteboardPage';
 import NotificationManager from './notificationManager';
+import CallPage from './main/callPage';
 
 const ProtectedRoute = ({
   user,
@@ -74,6 +75,7 @@ const FakeStackOverflow = ({ socket }: { socket: FakeSOSocket | null }) => {
             <Route path='/games/:gameID' element={<GamePage />} />
             <Route path='/whiteboard' element={<WhiteboardPage />} />
             <Route path='/whiteboard/:whiteboardID' element={<SpecificWhiteboardPage />} />
+            <Route path='/call' element={<CallPage />} />
           </Route>
         }
       </Routes>

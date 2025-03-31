@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './index.css';
 import { NavLink, useLocation } from 'react-router-dom';
 
@@ -70,6 +70,12 @@ const SideBarNav = () => {
         id='menu_whiteboard'
         className={({ isActive }) => `menu_button ${isActive ? 'menu_selected' : ''}`}>
         Whiteboard
+      </NavLink>
+      <NavLink
+        to='/call'
+        id='menu_call'
+        className={({ isActive }) => `menu_button ${isActive ? 'menu_selected' : ''}`}>
+        Calling
       </NavLink>
     </div>
   );

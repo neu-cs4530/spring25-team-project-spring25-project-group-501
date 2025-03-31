@@ -110,6 +110,13 @@ export interface ClientToServerEvents {
   updateWhiteboard: (whiteboardLink: string, content: string) => void;
   joinWhiteboard: (whiteboardLink: string) => void;
   leaveWhiteboard: (whiteboardLink: string) => void;
+  callUser: (payload: {
+    userToCall: string;
+    signalData: string | SignalData;
+    from: string;
+    name: string | undefined;
+  }) => void;
+  answerCall: (payload: { to: string; signal: string | SignalData }) => void;
 }
 
 /**
@@ -138,4 +145,11 @@ export interface ServerToClientEvents {
   chatUpdate: (chat: ChatUpdatePayload) => void;
   whiteboardContent: (content: string) => void;
   whiteboardError: (error: string) => void;
+  // Call Events
+  callUser: (payload: {
+    signal: string | SignalData;
+    from: string;
+    name: string | undefined;
+  }) => void;
+  callAccepted: (signal: string | SignalData) => void;
 }
