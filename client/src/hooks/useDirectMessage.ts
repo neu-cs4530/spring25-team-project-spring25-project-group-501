@@ -135,7 +135,7 @@ const useDirectMessage = () => {
       setError('Please select at least one user to chat with');
       return;
     }
-    const allParticipants = [user.username, ...selectedParticipants];
+    const allParticipants = Array.from(new Set([user.username, ...selectedParticipants]));
     const chatName = newChatTitle || `Chat with ${allParticipants.join(', ')}`;
     const chat = await createChat(allParticipants, user.username, chatName);
     setSelectedChat(chat);

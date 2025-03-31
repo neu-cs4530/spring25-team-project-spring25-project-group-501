@@ -30,4 +30,12 @@ const getWhiteboard = async (uniqueLink: string): Promise<Whiteboard> => {
   return res.json();
 };
 
-export { getWhiteboard, addWhiteboard };
+const getWhiteboardsByOwner = async (owner: string): Promise<Whiteboard[]> => {
+  const res = await fetch(`${WHITEBOARD_API_URL}/byOwner/${owner}`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch whiteboards: ${res.status}`);
+  }
+  return res.json();
+};
+
+export { getWhiteboard, addWhiteboard, getWhiteboardsByOwner };
