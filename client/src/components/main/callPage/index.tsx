@@ -27,17 +27,6 @@ const CallPage = () => {
   return (
     <div className='m-4'>
       <h1 className='text-2xl font-bold'>Call Page</h1>
-      <VideoPlayer
-        stream={stream}
-        name={name}
-        myVideo={myVideo}
-        userVideo={userVideo}
-        call={call}
-        callAccepted={callAccepted}
-        callEnded={callEnded}
-        muted={muted}
-        videoOff={videoOff}
-      />
       <Options
         mySocket={mySocket}
         callAccepted={callAccepted}
@@ -50,6 +39,17 @@ const CallPage = () => {
         toggleVideo={toggleVideo}>
         <IncomingCall answerCall={answerCall} call={call} callAccepted={callAccepted} />
       </Options>
+      <VideoPlayer
+        stream={stream}
+        name={name}
+        myVideo={myVideo}
+        userVideo={userVideo}
+        call={call}
+        callAccepted={callAccepted}
+        callEnded={callEnded}
+        muted={muted}
+        videoOff={videoOff}
+      />
     </div>
   );
 };

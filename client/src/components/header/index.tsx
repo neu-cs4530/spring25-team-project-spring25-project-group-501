@@ -16,9 +16,10 @@ const Header = () => {
   const [imageError, setImageError] = useState(false);
 
   return (
-    <div id='header' className='header'>
-      <div></div>
-      <div className='title'>Fake Stack Overflow</div>
+    <div id='header' className='header px-8 w-full bg-gray-200 border-b-2 border-black shadow-md'>
+      <div className='title'>
+        collabor<span className='text-blue-700'>8</span>
+      </div>
       <input
         id='searchBar'
         placeholder='Search ...'
@@ -26,6 +27,7 @@ const Header = () => {
         value={val}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
+        className='rounded-md px-2 py-1 outline'
       />
       <div className='header-right'>
         {currentUser.avatarUrl && !imageError ? (

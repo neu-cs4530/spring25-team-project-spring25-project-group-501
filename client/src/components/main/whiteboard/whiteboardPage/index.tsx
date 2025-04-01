@@ -49,22 +49,36 @@ const WhiteboardPage = () => {
   };
 
   return (
-    <div className='whiteboard-container'>
-      <div className='horizontal-flex'>
-        {!isCreating && (
+    <div className='whiteboard-container m-4'>
+      <h1 className='text-2xl font-bold'>Whiteboard Page</h1>
+      <div
+        className={`flex gap-4 ${isCreating ? 'flex-row-reverse justify-end' : 'flex-row justify-start'}`}>
+        {!isCreating && !isJoining && (
           <button className='btn-create-whiteboard' onClick={() => setIsCreating(!isCreating)}>
             Start Creating Whiteboard
           </button>
         )}
         {isCreating && (
-          <button className='btn-create-whiteboard' onClick={handleCreateWhiteboard}>
-            Create Whiteboard
-          </button>
+          <div className='flex gap-4'>
+            <button className='btn-create-whiteboard' onClick={handleCreateWhiteboard}>
+              Create Whiteboard
+            </button>
+            <button
+              className='bg-red-500 py-2 px-4 rounded-md text-white'
+              onClick={() => setIsCreating(!isCreating)}>
+              X
+            </button>
+          </div>
         )}
         {isCreating && (
-          <div className='horizontal-flex'>
+          <div className='horizontal-flex gap-2'>
             <p>Title: </p>
-            <input type='text' value={title} onChange={e => SetTitle(e.target.value)}></input>
+            <input
+              type='text'
+              value={title}
+              onChange={e => SetTitle(e.target.value)}
+              className='border border-black'
+            />
             <p>Read-only?: </p>
             <input
               type='checkbox'
@@ -72,40 +86,56 @@ const WhiteboardPage = () => {
               onChange={e => {
                 setAccessType(e.target.checked ? 'read-only' : 'editable');
               }}
+              className='border border-black'
             />
           </div>
         )}
-        {!isJoining && (
+        {!isJoining && !isCreating && (
           <button className='btn-create-whiteboard' onClick={() => setIsJoining(!isJoining)}>
             Join Whiteboard
           </button>
         )}
         {isJoining && (
-          <div className='horizontal-flex'>
+          <div className='horizontal-flex gap-4'>
             <p>Whiteboard ID: </p>
-            <input type='text' value={joinId} onChange={e => setJoinId(e.target.value)}></input>
+            <input
+              type='text'
+              value={joinId}
+              onChange={e => setJoinId(e.target.value)}
+              className='border border-black'
+            />
           </div>
         )}
         {isJoining && (
-          <button
-            className='btn-create-whiteboard'
-            onClick={() => navigate(`/whiteboard/${joinId}`)}>
-            Join Whiteboard
-          </button>
-        )}
-      </div>
-      <ul>
-        {ownedWhiteboards.map((whiteboard, index) => (
-          <div className='horizontal-flex' key={index}>
-            <p>{whiteboard.title}</p>
+          <div>
             <button
               className='btn-create-whiteboard'
-              onClick={() => navigate(`/whiteboard/${whiteboard.uniqueLink}`)}>
-              Join
+              onClick={() => navigate(`/whiteboard/${joinId}`)}>
+              Join Whiteboard
+            </button>
+            <button
+              className='bg-red-500 py-2 px-4 rounded-md text-white'
+              onClick={() => setIsJoining(!isJoining)}>
+              X
             </button>
           </div>
-        ))}
-      </ul>
+        )}
+      </div>
+      <div>
+        {ownedWhiteboards.length && <p className='font-semibold text-lg'>My Whiteboards</p>}
+        <ul>
+          {ownedWhiteboards.map((whiteboard, index) => (
+            <div className='horizontal-flex justify-between w-[30%]' key={index}>
+              <p>{whiteboard.title}</p>
+              <button
+                className='btn-create-whiteboard'
+                onClick={() => navigate(`/whiteboard/${whiteboard.uniqueLink}`)}>
+                Join
+              </button>
+            </div>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
