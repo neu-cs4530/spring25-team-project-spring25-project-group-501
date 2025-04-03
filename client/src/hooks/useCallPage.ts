@@ -161,6 +161,7 @@ const useCallPage = ({
     setCallEnded(true);
     if (connectionRef.current) {
       connectionRef.current.end();
+      connectionRef.current = undefined;
     }
 
     if (stream) {
