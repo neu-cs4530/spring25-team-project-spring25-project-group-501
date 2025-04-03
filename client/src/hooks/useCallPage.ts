@@ -3,6 +3,8 @@ import Peer, { SignalData } from 'simple-peer';
 import process from 'process';
 
 import useUserContext from './useUserContext';
+import { getUsers } from '../services/userService';
+import { CallableUser } from '../components/main/callPage/type';
 
 window.process = process;
 
@@ -37,8 +39,32 @@ const useCallPage = ({
   });
   const [callAccepted, setCallAccepted] = useState<boolean>(false);
   const [callEnded, setCallEnded] = useState<boolean>(false);
+  const [callableUsers, setCallableUsers] = useState<CallableUser[]>([]);
 
   const connectionRef = useRef<Peer.Instance>();
+
+  useEffect(() => {
+    const getCallableUsers = async () => {
+      try {
+        const users = await getUsers();
+
+        const callables = users
+          .filter(u => u.username && u.socketId && u.username !== user.username)
+          .map(u => ({
+            username: u.username,
+            socketId: u.socketId,
+          })) as CallableUser[];
+
+        setCallableUsers(callables);
+        return callables;
+      } catch (error) {
+        setCallableUsers([]);
+        return [];
+      }
+    };
+
+    getCallableUsers();
+  }, [user.username]);
 
   /*
    * useEffect hook to get the media stream and set it to the video element
@@ -135,6 +161,7 @@ const useCallPage = ({
     setCallEnded(true);
     if (connectionRef.current) {
       connectionRef.current.end();
+      connectionRef.current = undefined;
     }
 
     if (stream) {
@@ -219,6 +246,7 @@ const useCallPage = ({
     callUser,
     leaveCall,
     answerCall,
+    callableUsers,
   };
 };
 

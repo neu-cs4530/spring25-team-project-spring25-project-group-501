@@ -13,6 +13,7 @@ import { Schema } from 'mongoose';
  * - `googleId`: The Google ID for OAuth authentication (optional).
  * - `email`: The email address of the user (optional).
  * - `avatarUrl`: URL to the user's profile picture (optional).
+ * - `currentSocket`: A user's unique socket id (optional).
  */
 const userSchema: Schema = new Schema(
   {
@@ -45,6 +46,9 @@ const userSchema: Schema = new Schema(
       sparse: true,
     },
     avatarUrl: {
+      type: String,
+    },
+    socketId: {
       type: String,
     },
   },

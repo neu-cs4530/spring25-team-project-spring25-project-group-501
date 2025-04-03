@@ -110,7 +110,12 @@ const SpecificWhiteboardPage = () => {
   const canEdit = !isReadOnly || (isReadOnly && whiteboardObject?.owner === user?.user.username);
 
   return (
-    <div>
+    <div className='m-4'>
+      <div className='flex gap-2 items-end'>
+        <h2 className='font-bold text-2xl'>{whiteboardObject?.title}</h2>
+        <p className='italic'>{whiteboardObject ? `Owned By ${whiteboardObject.owner}` : ''}</p>
+      </div>
+
       {isReadOnly && whiteboardObject?.owner !== user?.user.username && (
         <p>This whiteboard is read-only.</p>
       )}
@@ -151,11 +156,18 @@ const SpecificWhiteboardPage = () => {
         onMouseLeave={stopDrawing}
       />
       {whiteboardID && (
-        <button
-          className='btn-copy-whiteboard'
-          onClick={e => navigator.clipboard.writeText(whiteboardID)}>
-          Copy Whiteboard ID
-        </button>
+        <div className='flex'>
+          <button
+            className='btn-copy-whiteboard'
+            onClick={e => navigator.clipboard.writeText(whiteboardID)}>
+            Copy Whiteboard ID
+          </button>
+          <button
+            className='px-[20px] py-[10px] bg-[#007bff] text-white rounded-md'
+            onClick={() => window.history.back()}>
+            Go Back
+          </button>
+        </div>
       )}
     </div>
   );

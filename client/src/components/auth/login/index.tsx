@@ -55,7 +55,9 @@ const Login = () => {
 
   return (
     <div className='container'>
-      <h2>Welcome to FakeStackOverflow!</h2>
+      <h2>
+        Welcome to collabor<span className='text-blue-700'>8</span>!
+      </h2>
       <h3>Please login to continue.</h3>
       <form onSubmit={handleSubmit}>
         <h4>Please enter your username.</h4>
