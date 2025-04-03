@@ -55,7 +55,11 @@ const MessageCard = ({
               key={index}
               className={`poll-option-button ${currentUserVote === index ? 'voted' : ''}`}
               onClick={() => onVote && onVote(message._id.toString(), index)}>
-              {option.optionText} <span className='vote-count'>({voteCounts[index]})</span>
+              {option.optionText}
+              <span className='vote-count'>
+                ({voteCounts[index]} -{' '}
+                {((voteCounts[index] / voteCounts.reduce((a, b) => a + b, 0)) * 100).toFixed(1)}%)
+              </span>
             </button>
           ))}
         </div>

@@ -12,8 +12,6 @@
     "npm": "^11.0.0",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
-    "@fake-stack-overflow/shared": "^1.0.0",
-    "socket.io-client": "^4.8.1",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
