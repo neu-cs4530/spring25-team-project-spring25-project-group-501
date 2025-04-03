@@ -43,6 +43,7 @@ export interface User {
   googleId?: string;
   email?: string;
   avatarUrl?: string;
+  socketId?: string;
 }
 
 /**
@@ -122,5 +123,18 @@ export interface UpdateBiographyRequest extends Request {
   body: {
     username: string;
     biography: string;
+  };
+}
+
+/**
+ * Express request for updating a user's socket.
+ *
+ * - `username`: The username whose socket is being updated (body).
+ * - `socketId`: The new socket ID to be set (body).
+ */
+export interface UpdateUserScoketRequest extends Request {
+  body: {
+    username: string;
+    socketId: string | undefined;
   };
 }

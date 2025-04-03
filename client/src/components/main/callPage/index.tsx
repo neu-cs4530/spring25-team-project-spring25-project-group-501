@@ -22,6 +22,7 @@ const CallPage = () => {
     toggleMuted,
     videoOff,
     toggleVideo,
+    callableUsers,
   } = useCallPage({ myVideo, userVideo });
 
   return (
@@ -33,6 +34,7 @@ const CallPage = () => {
         callEnded={callEnded}
         leaveCall={leaveCall}
         callUser={callUser}
+        callableUsers={callableUsers}
         muted={muted}
         toggleMuted={toggleMuted}
         videoOff={videoOff}

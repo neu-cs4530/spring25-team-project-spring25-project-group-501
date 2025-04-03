@@ -10,6 +10,7 @@ import {
   UpdateBiographyRequest,
   GoogleOAuthRequest,
   GoogleCredentials,
+  UpdateUserScoketRequest,
 } from '../types/types';
 import {
   deleteUserByUsername,
@@ -301,6 +302,33 @@ const userController = (socket: FakeSOSocket) => {
     }
   };
 
+  /**
+   * Update a user's socket id
+   * @param req The request containing the username and socketId in the body.
+   * @param res The response, either confirming the update or returning an error.
+   * @returns A promise resolving to void.
+   */
+  const updateUserSocket = async (req: UpdateUserScoketRequest, res: Response): Promise<void> => {
+    try {
+      const { username, socketId } = req.body;
+
+      if (!username) {
+        res.status(400).send('Invalid user body');
+        return;
+      }
+
+      const updatedUser = await updateUser(username, { socketId });
+
+      if ('error' in updatedUser) {
+        throw new Error(updatedUser.error);
+      }
+
+      res.status(200).json(updatedUser);
+    } catch (error) {
+      res.status(500).send(`Error when updating user socket: ${error}`);
+    }
+  };
+
   // Define routes for the user-related operations.
   router.post('/signup', createUser);
   router.post('/login', userLogin);
@@ -310,6 +338,7 @@ const userController = (socket: FakeSOSocket) => {
   router.get('/getUsers', getUsers);
   router.delete('/deleteUser/:username', deleteUser);
   router.patch('/updateBiography', updateBiography);
+  router.patch('/updateSocket', updateUserSocket);
   return router;
 };
 

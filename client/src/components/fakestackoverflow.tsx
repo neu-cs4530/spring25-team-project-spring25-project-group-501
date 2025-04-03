@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './layout';
 import Login from './auth/login';
@@ -21,6 +21,7 @@ import WhiteboardPage from './main/whiteboard/whiteboardPage';
 import SpecificWhiteboardPage from './main/whiteboard/specificWhiteboardPage';
 import NotificationManager from './notificationManager';
 import CallPage from './main/callPage';
+import { updateUserSocket } from '../services/userService';
 
 const ProtectedRoute = ({
   user,
@@ -44,6 +45,18 @@ const ProtectedRoute = ({
  */
 const FakeStackOverflow = ({ socket }: { socket: FakeSOSocket | null }) => {
   const [user, setUser] = useState<SafeDatabaseUser | null>(null);
+
+  useEffect(() => {
+    if (socket && socket.id && user) {
+      updateUserSocket(user.username, socket.id);
+    }
+
+    return () => {
+      if (user) {
+        updateUserSocket(user.username, undefined);
+      }
+    };
+  }, [socket, user]);
 
   return (
     <LoginContext.Provider value={{ setUser }}>

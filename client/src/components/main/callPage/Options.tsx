@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CallableUser } from './type';
 
 type OptionsProps = {
   mySocket: string;
@@ -6,6 +7,7 @@ type OptionsProps = {
   callEnded: boolean;
   leaveCall: () => void;
   callUser: (id: string) => void;
+  callableUsers: CallableUser[];
   muted: boolean;
   toggleMuted: () => void;
   videoOff: boolean;
@@ -52,13 +54,19 @@ const Options = (props: OptionsProps) => {
         <div>
           <p className='font-bold'>Make a Call</p>
           <div className='border border-black bg-slate-100 rounded-lg py-2 px-3 gap-2 flex flex-row items-center justify-center'>
-            <input
-              type='text'
+            <select
               value={idToCall}
-              onChange={e => setIdToCall(e.target.value)}
-              placeholder='ID to call'
-              className='p-2 rounded-lg outline'
-            />
+              onChange={e => {
+                setIdToCall(e.target.value);
+              }}
+              className='p-2 rounded-lg outline'>
+              <option value=''>Select a user</option>
+              {props.callableUsers.map((user: CallableUser) => (
+                <option key={user.socketId} value={user.socketId}>
+                  {user.username}
+                </option>
+              ))}
+            </select>
             {props.callAccepted && !props.callEnded ? (
               <button
                 onClick={e => {
