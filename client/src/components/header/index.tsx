@@ -10,25 +10,16 @@ import useUserContext from '../../hooks/useUserContext';
  * when they press Enter.
  */
 const Header = () => {
-  const { val, handleInputChange, handleKeyDown, handleSignOut } = useHeader();
+  const { handleSignOut } = useHeader();
   const { user: currentUser } = useUserContext();
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
 
   return (
-    <div id='header' className='header px-8 w-full bg-gray-200 border-b-2 border-black shadow-md'>
+    <div id='header' className='header p-4 outline outline-blue-600'>
       <div className='title'>
-        collabor<span className='text-blue-700'>8</span>
+        collabor<span className='text-blue-600'>8</span>
       </div>
-      <input
-        id='searchBar'
-        placeholder='Search ...'
-        type='text'
-        value={val}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        className='rounded-md px-2 py-1 outline'
-      />
       <div className='header-right'>
         {currentUser.avatarUrl && !imageError ? (
           <img

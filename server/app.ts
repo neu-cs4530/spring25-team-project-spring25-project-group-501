@@ -19,6 +19,7 @@ import messageController from './controllers/message.controller';
 import chatController from './controllers/chat.controller';
 import gameController from './controllers/game.controller';
 import whiteboardController from './controllers/whiteboard.controller';
+import { removeSocketBySocketId } from './services/user.service';
 
 dotenv.config();
 
@@ -52,7 +53,18 @@ socket.on('connection', socket => {
   socket.on('answerCall', ({ to, signal }) => {
     socket.to(to).emit('callAccepted', signal);
   });
-  socket.on('disconnect', () => {
+  socket.on('disconnect', async () => {
+    try {
+      const updatedUser = await removeSocketBySocketId(socket.id);
+
+      if ('error' in updatedUser) {
+        console.log(`${updatedUser.error}`);
+      } else {
+        console.log(`Removed socket from ${updatedUser.username}`);
+      }
+    } catch (error) {
+      console.log('Error removing socket from user: ', error);
+    }
     console.log('User disconnected');
   });
 });

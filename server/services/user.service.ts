@@ -166,6 +166,23 @@ export const deleteUserByUsername = async (username: string): Promise<UserRespon
   }
 };
 
+export const removeSocketBySocketId = async (socketId: string): Promise<UserResponse> => {
+  try {
+    const updatedUser: SafeDatabaseUser | null = await UserModel.findOneAndUpdate(
+      { socketId },
+      { $set: { socketId: '' } },
+      { new: true },
+    ).select('-password');
+
+    if (!updatedUser) {
+      throw Error('Error updating user');
+    }
+    return updatedUser;
+  } catch (error) {
+    return { error: `Error occurred when updating user: ${error}` };
+  }
+};
+
 /**
  * Updates user information in the database.
  *

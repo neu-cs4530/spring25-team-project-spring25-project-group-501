@@ -59,7 +59,7 @@ const FakeStackOverflow = ({ socket }: { socket: FakeSOSocket | null }) => {
   }, [socket, user]);
 
   return (
-    <LoginContext.Provider value={{ setUser }}>
+    <LoginContext.Provider value={{ username: user?.username, setUser }}>
       <Routes>
         {/* Public Route */}
         <Route path='/' element={<Login />} />

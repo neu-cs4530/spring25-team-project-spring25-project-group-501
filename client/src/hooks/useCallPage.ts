@@ -64,7 +64,7 @@ const useCallPage = ({
     };
 
     getCallableUsers();
-  }, []);
+  }, [user.username]);
 
   /*
    * useEffect hook to get the media stream and set it to the video element
