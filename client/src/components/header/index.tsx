@@ -17,7 +17,7 @@ const Header = () => {
 
   return (
     <div id='header' className='header p-4 outline outline-blue-600'>
-      <div className='title'>
+      <div className='title text-[#9290C3]'>
         collabor<span className='text-blue-600'>8</span>
       </div>
       <div className='header-right'>
