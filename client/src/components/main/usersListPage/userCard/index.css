@@ -1,23 +1,90 @@
-.user {
-  display: flex;
-  flex-direction: row;
-  border-top: #000000 1px dashed;
-}
-
-.userStats {
-  color: #bbbbbb;
-  text-align: right;
-  width: 30%;
-}
-
-.user_mid {
-  margin-left: 2rem;
-  margin-top: auto;
-  margin-bottom: auto;
-  width: 60%;
-}
-
-.userUsername {
-  color: cornflowerblue;
+/* User Card Item styling */
+.user-card-item {
+  background-color: #ffffff;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #eaeaea;
+}
+
+.user-card-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  border-color: #dcdcdc;
+}
+
+.user-card-item:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* User Content styling */
+.user-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Username styling */
+.user-username {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+}
+
+/* User joined date styling */
+.user-joined {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #666666;
+}
+
+.date-icon {
+  color: #007bff;
+  font-size: 12px;
+}
+
+/* Ensuring container has proper styling */
+.users_list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: #f8f9fa;
+  border-radius: 0 0 8px 8px;
+}
+
+/* Scrollbar styling for the user list */
+.users_list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.users_list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+
+.users_list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 8px;
+}
+
+.users_list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Empty state for no users */
+.bold_title.right_padding {
+  padding: 40px 20px;
+  text-align: center;
+  color: #6c757d;
+  font-weight: 600;
+  font-size: 18px;
 }
