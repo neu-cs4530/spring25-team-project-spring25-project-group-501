@@ -58,7 +58,10 @@ const MessageCard = ({
               {option.optionText}
               <span className='vote-count'>
                 ({voteCounts[index]} -{' '}
-                {((voteCounts[index] / voteCounts.reduce((a, b) => a + b, 0)) * 100).toFixed(1)}%)
+                {voteCounts.reduce((a, b) => a + b, 0) > 0
+                  ? ((voteCounts[index] / voteCounts.reduce((a, b) => a + b, 0)) * 100).toFixed(1)
+                  : '0.0'}
+                %)
               </span>
             </button>
           ))}

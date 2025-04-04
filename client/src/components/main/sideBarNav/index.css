@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   width: 15%;
-  border-right: dashed;
   padding: 4% 0 4% 0;
   align-items: center;
 }

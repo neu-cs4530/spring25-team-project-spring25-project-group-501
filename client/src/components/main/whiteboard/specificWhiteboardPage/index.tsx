@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import './index.css';
+import { faEraser, faPaintBrush } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import UserContext from '../../../../contexts/UserContext';
 import { getWhiteboard } from '../../../../services/whiteboardService';
 import { Whiteboard } from '../../../../types/types';
@@ -11,11 +13,15 @@ const SpecificWhiteboardPage = () => {
   const [context, SetContext] = useState<CanvasRenderingContext2D | null>(null);
   const [size, setSize] = useState<number>(2);
   const [color, setColor] = useState<string>('#000000');
+  const [previousColor, setPreviousColor] = useState<string>('#000000');
+  const [previousSize, setPreviousSize] = useState<number>(2);
+  const [isEraser, setIsEraser] = useState<boolean>(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const user = useContext(UserContext);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [whiteboardObject, setWhiteboardObject] = useState<Whiteboard | null>(null);
+
   useEffect(() => {
     if (user?.socket && whiteboardID) {
       const fetchWhiteboard = async () => {
@@ -79,6 +85,22 @@ const SpecificWhiteboardPage = () => {
     }
   }, [whiteboard, context]);
 
+  const toggleEraser = () => {
+    if (!isEraser) {
+      // Switching to eraser
+      setPreviousColor(color);
+      setPreviousSize(size);
+      setColor('#FFFFFF');
+      setSize(40); // Much larger eraser size
+      setIsEraser(true);
+    } else {
+      // Switching back to pen
+      setColor(previousColor);
+      setSize(previousSize);
+      setIsEraser(false);
+    }
+  };
+
   const startDrawing = (e: React.MouseEvent) => {
     if (isReadOnly && whiteboardObject?.owner !== user?.user.username) return;
     if (context) {
@@ -109,6 +131,23 @@ const SpecificWhiteboardPage = () => {
 
   const canEdit = !isReadOnly || (isReadOnly && whiteboardObject?.owner === user?.user.username);
 
+  const updateDrawingColor = (newColor: string) => {
+    if (!isEraser) {
+      setColor(newColor);
+      setPreviousColor(newColor);
+    }
+  };
+
+  const updateDrawingSize = (newSize: number) => {
+    if (isEraser) {
+      // Allow adjusting eraser size but keep it larger
+      setSize(newSize * 2); // Double the size for eraser mode
+    } else {
+      setSize(newSize);
+      setPreviousSize(newSize);
+    }
+  };
+
   return (
     <div className='m-4'>
       <div className='flex gap-2 items-end'>
@@ -125,23 +164,29 @@ const SpecificWhiteboardPage = () => {
             <p>Size: </p>
             <input
               type='range'
-              min='1'
-              max='20'
-              value={size}
-              onChange={e => setSize(Number(e.target.value))}></input>
+              value={isEraser ? size / 2 : size}
+              onChange={e => updateDrawingSize(Number(e.target.value))}
+              min={isEraser ? '10' : '1'}
+              max={isEraser ? '50' : '20'}
+            />
           </div>
           <div className='horizontal-flex'>
             <p>Color: </p>
-            <input type='color' value={color} onChange={e => setColor(e.target.value)}></input>
-          </div>
-          <div className='horizontal-flex'>
-            <p>Toggle Eraser: </p>
             <input
-              type='checkbox'
-              onChange={e => {
-                setColor(e.target.checked ? '#FFFFFF' : '#000000');
-                setSize(e.target.checked ? 100 : size);
-              }}></input>
+              type='color'
+              value={isEraser ? previousColor : color}
+              onChange={e => updateDrawingColor(e.target.value)}
+              disabled={isEraser}
+            />
+          </div>
+          <div className='horizontal-flex tool-toggle'>
+            <button
+              className={`tool-btn ${isEraser ? 'active' : ''}`}
+              onClick={toggleEraser}
+              title={isEraser ? 'Switch to Brush' : 'Switch to Eraser'}>
+              <FontAwesomeIcon icon={isEraser ? faPaintBrush : faEraser} />
+              {isEraser ? ' Brush' : ' Eraser'}
+            </button>
           </div>
         </div>
       )}
