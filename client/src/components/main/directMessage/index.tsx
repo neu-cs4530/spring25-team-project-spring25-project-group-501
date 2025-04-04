@@ -1,5 +1,7 @@
 import React from 'react';
 import './index.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faUsers, faCog, faPoll } from '@fortawesome/free-solid-svg-icons';
 import useDirectMessage from '../../../hooks/useDirectMessage';
 import ChatsListCard from './chatsListCard';
 import UsersListPage from '../usersListPage';
@@ -52,59 +54,61 @@ const DirectMessage = () => {
 
   return (
     <>
-      <div className='create-panel'>
-        <button className='custom-button' onClick={() => setShowCreatePanel(prev => !prev)}>
-          {showCreatePanel ? 'Hide Create Chat Panel' : 'Start a Chat'}
-        </button>
-        {error && <div className='direct-message-error'>{error}</div>}
-        {showCreatePanel && (
-          <>
-            <p>Selected users: {selectedParticipants.join(', ') || 'None'}</p>
-
-            {selectedParticipants.length > 1 && (
-              <input
-                className='custom-input small-width'
-                type='text'
-                value={newChatTitle}
-                onChange={e => setNewChatTitle(e.target.value)}
-                placeholder='Enter group chat name'
-              />
-            )}
-            <div></div>
-            <button className='custom-button' onClick={handleCreateChat}>
-              Create New Chat
-            </button>
-
-            <UsersListPage handleUserSelect={handleUserSelect} />
-          </>
-        )}
-      </div>
       <div className='direct-message-container'>
         <div className='chats-list'>
-          {chats.map(chat => (
-            <ChatsListCard key={String(chat._id)} chat={chat} handleChatSelect={handleChatSelect} />
-          ))}
+          <div className='chats-header'>
+            <h2>Your Chats</h2>
+            <button
+              className='icon-button'
+              title='Start a new chat'
+              onClick={() => setShowCreatePanel(true)}>
+              <FontAwesomeIcon icon={faPlus} />
+            </button>
+          </div>
+          <div className='chats-content'>
+            {chats.map(chat => (
+              <ChatsListCard
+                key={String(chat._id)}
+                chat={chat}
+                handleChatSelect={handleChatSelect}
+              />
+            ))}
+          </div>
         </div>
         <div className='chat-container'>
           {selectedChat ? (
             <>
-              <span>
+              <div className='chat-header'>
                 <h2>{selectedChat.title}</h2>
-                <button className='custom-button' onClick={() => setShowAddParticipants(true)}>
-                  Add Participants
-                </button>
-                <button className='custom-button' onClick={() => setShowUsersList(true)}>
-                  Show Participants
-                </button>
-                {userPermissions === 'admin' && (
-                  <button className='custom-button' onClick={() => setShowManageParticipants(true)}>
-                    Manage Participants
+                <div className='chat-actions'>
+                  <button
+                    className='icon-button'
+                    title='Add Participants'
+                    onClick={() => setShowAddParticipants(true)}>
+                    <FontAwesomeIcon icon={faPlus} />
                   </button>
-                )}
-                <button className='custom-button' onClick={() => setShowCreatePoll(true)}>
-                  Create Poll
-                </button>
-              </span>
+                  <button
+                    className='icon-button'
+                    title='Show Participants'
+                    onClick={() => setShowUsersList(true)}>
+                    <FontAwesomeIcon icon={faUsers} />
+                  </button>
+                  {userPermissions === 'admin' && (
+                    <button
+                      className='icon-button'
+                      title='Manage Participants'
+                      onClick={() => setShowManageParticipants(true)}>
+                      <FontAwesomeIcon icon={faCog} />
+                    </button>
+                  )}
+                  <button
+                    className='icon-button'
+                    title='Create Poll'
+                    onClick={() => setShowCreatePoll(true)}>
+                    <FontAwesomeIcon icon={faPoll} />
+                  </button>
+                </div>
+              </div>
               <div className='chat-messages'>
                 {selectedChat.messages.map(message => (
                   <MessageCard
@@ -135,45 +139,125 @@ const DirectMessage = () => {
               </div>
             </>
           ) : (
-            <h2>Select a user or users to start chatting</h2>
+            <div className='no-chat-selected'>
+              <h2>Select a chat or start a new conversation</h2>
+              <button className='custom-button' onClick={() => setShowCreatePanel(true)}>
+                Start a New Chat
+              </button>
+            </div>
           )}
         </div>
       </div>
-      <Modal isOpen={showAddParticipants} onClose={() => setShowAddParticipants(false)}>
-        <h3>Select Users to Add</h3>
-        <p>Selected users: {selectedUsersToAdd.join(', ') || 'None'}</p>
-        <div className='scrollable-container'>
-          <UsersListPage handleUserSelect={handleSelectedUsersToAdd} />
-        </div>
-        <div className='modal-actions'>
-          <button className='custom-button' onClick={handleAddSelectedUsers}>
-            Add Selected Users
-          </button>
-          <button className='custom-button' onClick={() => setShowAddParticipants(false)}>
-            Cancel
-          </button>
+
+      {/* Create Chat Modal */}
+      <Modal isOpen={showCreatePanel} onClose={() => setShowCreatePanel(false)}>
+        <div className='create-chat-modal'>
+          <h2>Start a New Chat</h2>
+          {error && <div className='direct-message-error'>{error}</div>}
+
+          <div className='selected-participants'>
+            <h3>Selected Users</h3>
+            {selectedParticipants.length > 0 ? (
+              <p>{selectedParticipants.join(', ')}</p>
+            ) : (
+              <p className='no-selection'>No users selected yet</p>
+            )}
+          </div>
+
+          {selectedParticipants.length > 1 && (
+            <div className='form-group'>
+              <label htmlFor='chat-title'>Group Chat Name</label>
+              <input
+                id='chat-title'
+                className='custom-input'
+                type='text'
+                value={newChatTitle}
+                onChange={e => setNewChatTitle(e.target.value)}
+                placeholder='Enter a name for this group chat'
+              />
+            </div>
+          )}
+
+          <div className='scrollable-container'>
+            <h3>Select Users</h3>
+            <UsersListPage handleUserSelect={handleUserSelect} />
+          </div>
+
+          <div className='modal-actions'>
+            <button className='custom-button cancel' onClick={() => setShowCreatePanel(false)}>
+              Cancel
+            </button>
+            <button
+              className='custom-button primary'
+              onClick={handleCreateChat}
+              disabled={selectedParticipants.length === 0}>
+              Create Chat
+            </button>
+          </div>
         </div>
       </Modal>
+
+      {/* Add Participants Modal */}
+      <Modal isOpen={showAddParticipants} onClose={() => setShowAddParticipants(false)}>
+        <div className='add-participants-modal'>
+          <h2>Add Users to Chat</h2>
+          <div className='selected-participants'>
+            <h3>Selected Users</h3>
+            {selectedUsersToAdd.length > 0 ? (
+              <p>{selectedUsersToAdd.join(', ')}</p>
+            ) : (
+              <p className='no-selection'>No users selected yet</p>
+            )}
+          </div>
+
+          <div className='scrollable-container'>
+            <UsersListPage handleUserSelect={handleSelectedUsersToAdd} />
+          </div>
+
+          <div className='modal-actions'>
+            <button className='custom-button cancel' onClick={() => setShowAddParticipants(false)}>
+              Cancel
+            </button>
+            <button
+              className='custom-button primary'
+              onClick={handleAddSelectedUsers}
+              disabled={selectedUsersToAdd.length === 0}>
+              Add Selected Users
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Other Modals */}
       {selectedChat && (
         <>
           <Modal isOpen={showManageParticipants} onClose={() => setShowManageParticipants(false)}>
+            <h2>Manage Participants</h2>
             <ParticipantManager chat={selectedChat} />
           </Modal>
+
           <Modal isOpen={showUsersList} onClose={() => setShowUsersList(false)}>
-            <div className='scrollable-container'>
-              <h3>Chat Participants ({selectedChat.participants.length})</h3>
-              <ul>
-                {selectedChat.participants.map(participant => {
-                  const permission = selectedChat.permissions.find(p => p.user === participant);
-                  return (
-                    <li key={participant}>
-                      {participant} - {permission ? permission.role : 'user'}
-                    </li>
-                  );
-                })}
-              </ul>
+            <div className='participants-list-modal'>
+              <h2>Chat Participants</h2>
+              <p className='participant-count'>Total: {selectedChat.participants.length}</p>
+              <div className='scrollable-container'>
+                <ul className='participants-list'>
+                  {selectedChat.participants.map(participant => {
+                    const permission = selectedChat.permissions.find(p => p.user === participant);
+                    return (
+                      <li key={participant} className='participant-item'>
+                        <span className='participant-name'>{participant}</span>
+                        <span className='participant-role'>
+                          {permission ? permission.role : 'user'}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             </div>
           </Modal>
+
           <CreatePollModal
             isOpen={showCreatePoll}
             onClose={() => setShowCreatePoll(false)}
