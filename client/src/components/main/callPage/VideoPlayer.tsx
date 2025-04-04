@@ -43,6 +43,8 @@ const VideoPlayer = ({
             ref={myVideo}
             autoPlay
             playsInline
+            id='myVideo'
+            style={{ transform: 'scaleX(-1)' }}
             className='border-2 border-blue-700 rounded-lg bg-black'
           />
         </div>
@@ -56,6 +58,7 @@ const VideoPlayer = ({
             ref={userVideo}
             autoPlay
             playsInline
+            style={{ transform: 'scaleX(-1)' }}
             className='border-2 border-red-700 rounded-lg'
           />
         </div>

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faVolumeHigh, faVolumeXmark } from '@fortawesome/free-solid-svg-icons';
 import { CallableUser } from './type';
 
 type OptionsProps = {
@@ -12,6 +14,7 @@ type OptionsProps = {
   toggleMuted: () => void;
   videoOff: boolean;
   toggleVideo: () => void;
+  toggleCallableUsers: () => void;
   children: React.ReactNode;
 };
 
@@ -23,7 +26,7 @@ const Options = (props: OptionsProps) => {
       <form className='min-w-full flex flex-row items-center justify-start flex-wrap'>
         <div>
           <p className='font-bold'>Controls</p>
-          <div className='bg-slate-100 rounded-lg py-2 px-3 flex items-center justify-center min-h-full border border-black'>
+          <div className='bg-[#9290C3] rounded-lg py-2 px-3 flex items-center justify-center min-h-full border border-black'>
             <button
               onClick={e => {
                 e.preventDefault();
@@ -37,8 +40,12 @@ const Options = (props: OptionsProps) => {
                 e.preventDefault();
                 props.toggleMuted();
               }}
-              className='bg-blue-500 hover:bg-blue-700 active:to-blue-900 text-white font-bold py-2 px-4 rounded'>
-              {props.muted ? '📳 Unmute' : '📴 Mute'}
+              className='bg-blue-500 hover:bg-blue-700 active:to-blue-900 text-white font-bold py-2 rounded w-12'>
+              {props.muted ? (
+                <FontAwesomeIcon icon={faVolumeHigh} />
+              ) : (
+                <FontAwesomeIcon icon={faVolumeXmark} />
+              )}
             </button>
             <button
               onClick={e => {
@@ -53,12 +60,13 @@ const Options = (props: OptionsProps) => {
 
         <div>
           <p className='font-bold'>Make a Call</p>
-          <div className='border border-black bg-slate-100 rounded-lg py-2 px-3 gap-2 flex flex-row items-center justify-center'>
+          <div className='border border-black bg-[#9290C3] rounded-lg py-2 px-3 gap-2 flex flex-row items-center justify-center'>
             <select
               value={idToCall}
               onChange={e => {
                 setIdToCall(e.target.value);
               }}
+              onClick={props.toggleCallableUsers}
               className='p-2 rounded-lg outline'>
               <option value=''>Select a user</option>
               {props.callableUsers.map((user: CallableUser) => (

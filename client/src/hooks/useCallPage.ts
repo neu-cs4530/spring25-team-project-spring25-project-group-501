@@ -40,6 +40,11 @@ const useCallPage = ({
   const [callAccepted, setCallAccepted] = useState<boolean>(false);
   const [callEnded, setCallEnded] = useState<boolean>(false);
   const [callableUsers, setCallableUsers] = useState<CallableUser[]>([]);
+  const [updateCallableUsers, setUpdateCallableUsers] = useState<boolean>(false);
+
+  const toggleCallableUsers = () => {
+    setUpdateCallableUsers(prev => !prev);
+  };
 
   const connectionRef = useRef<Peer.Instance>();
 
@@ -64,7 +69,7 @@ const useCallPage = ({
     };
 
     getCallableUsers();
-  }, [user.username]);
+  }, [user.username, updateCallableUsers]);
 
   /*
    * useEffect hook to get the media stream and set it to the video element
@@ -247,6 +252,7 @@ const useCallPage = ({
     leaveCall,
     answerCall,
     callableUsers,
+    toggleCallableUsers,
   };
 };
 

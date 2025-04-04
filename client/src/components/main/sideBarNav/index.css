@@ -19,6 +19,8 @@
   text-align: center;
   line-height: 40px;
   color: cornflowerblue;
+  border: 1px solid black;
+  min-width: 10rem;
 }
 
 .menu_selected {

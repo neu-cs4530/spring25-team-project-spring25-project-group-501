@@ -1,7 +1,9 @@
 /* Add CSS */
 
 @tailwind base;
+
 @tailwind components;
+
 @tailwind utilities;
 
 /* Add global CSS here */
@@ -13,6 +15,7 @@
 
 html {
   height: 99%;
+  background: slategray;
 }
 
 body,

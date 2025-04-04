@@ -23,10 +23,11 @@ const CallPage = () => {
     videoOff,
     toggleVideo,
     callableUsers,
+    toggleCallableUsers,
   } = useCallPage({ myVideo, userVideo });
 
   return (
-    <div className='m-4'>
+    <div className='m-4  '>
       <h1 className='text-2xl font-bold'>Call Page</h1>
       <Options
         mySocket={mySocket}
@@ -38,7 +39,8 @@ const CallPage = () => {
         muted={muted}
         toggleMuted={toggleMuted}
         videoOff={videoOff}
-        toggleVideo={toggleVideo}>
+        toggleVideo={toggleVideo}
+        toggleCallableUsers={toggleCallableUsers}>
         <IncomingCall answerCall={answerCall} call={call} callAccepted={callAccepted} />
       </Options>
       <VideoPlayer
