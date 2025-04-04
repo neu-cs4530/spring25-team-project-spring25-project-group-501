@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faVolumeHigh, faVolumeXmark } from '@fortawesome/free-solid-svg-icons';
+import {
+  faVideo,
+  faVideoSlash,
+  faVolumeHigh,
+  faVolumeXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import { CallableUser } from './type';
 
 type OptionsProps = {
@@ -30,14 +35,6 @@ const Options = (props: OptionsProps) => {
             <button
               onClick={e => {
                 e.preventDefault();
-                navigator.clipboard.writeText(props.mySocket);
-              }}
-              className='bg-blue-500 hover:bg-blue-700 active:to-blue-900 text-white font-bold py-2 px-4 rounded'>
-              Copy Your ID
-            </button>
-            <button
-              onClick={e => {
-                e.preventDefault();
                 props.toggleMuted();
               }}
               className='bg-blue-500 hover:bg-blue-700 active:to-blue-900 text-white font-bold py-2 rounded w-12'>
@@ -52,8 +49,12 @@ const Options = (props: OptionsProps) => {
                 e.preventDefault();
                 props.toggleVideo();
               }}
-              className='bg-blue-500 hover:bg-blue-700 active:to-blue-900 text-white font-bold py-2 px-4 rounded'>
-              {props.videoOff ? 'Enable Video' : 'Disable Video'}
+              className='bg-blue-500 hover:bg-blue-700 active:to-blue-900 text-white font-bold py-2 rounded w-12'>
+              {props.videoOff ? (
+                <FontAwesomeIcon icon={faVideo} />
+              ) : (
+                <FontAwesomeIcon icon={faVideoSlash} />
+              )}
             </button>
           </div>
         </div>
