@@ -1,6 +1,6 @@
 .tagNode {
   place-self: center;
-  border: #000000 1px dashed;
+  border: #000000 1px;
   padding: 5%;
   width: 30%;
   display: flex;

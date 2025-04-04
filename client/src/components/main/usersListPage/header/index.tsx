@@ -1,5 +1,7 @@
 import React from 'react';
 import './index.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch, faUsers } from '@fortawesome/free-solid-svg-icons';
 import useUserSearch from '../../../../hooks/useUserSearch';
 
 /**
@@ -25,19 +27,28 @@ const UsersListHeader = ({ userCount, setUserFilter }: UserHeaderProps) => {
   const { val, handleInputChange } = useUserSearch(setUserFilter);
 
   return (
-    <div>
-      <div className='space_between right_padding'>
-        <div className='bold_title'>Users List</div>
-        <input
-          id='user_search_bar'
-          placeholder='Search Usernames ...'
-          type='text'
-          value={val}
-          onChange={handleInputChange}
-        />
+    <div className='users-list-header'>
+      <div className='users-list-title-row'>
+        <h2 className='users-list-title'>Users List</h2>
+        <div className='search-wrapper'>
+          <FontAwesomeIcon icon={faSearch} className='search-icon' />
+          <input
+            id='user_search_bar'
+            className='user-search-input'
+            placeholder='Search Usernames...'
+            type='text'
+            value={val}
+            onChange={handleInputChange}
+          />
+        </div>
       </div>
-      <div className='space_between right_padding'>
-        <div id='user_count'>{userCount} users</div>
+      <div className='users-count-row'>
+        <div id='user_count' className='users-count'>
+          <FontAwesomeIcon icon={faUsers} className='users-icon' />
+          <span>
+            {userCount} {userCount === 1 ? 'user' : 'users'}
+          </span>
+        </div>
       </div>
     </div>
   );
