@@ -18,7 +18,16 @@ html {
   background: slategray;
 }
 
-body,
+body, 
 #root {
   height: 100%;
+  width: 100%;
+}
+
+/* Special styling just for the login page */
+#root.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
