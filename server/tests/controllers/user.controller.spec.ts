@@ -408,4 +408,74 @@ describe('Test userController', () => {
       );
     });
   });
+
+  describe('PATCH /updateUserSocket', () => {
+    it('should successfully update user socket given correct arguments', async () => {
+      const mockReqBody = {
+        username: mockUser.username,
+        socketId: '12345',
+      };
+
+      // Mock a successful updateUser call
+      updatedUserSpy.mockResolvedValueOnce(mockSafeUser);
+
+      const response = await supertest(app).patch('/user/updateSocket').send(mockReqBody);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(mockUserJSONResponse);
+      // Ensure updateUser is called with the correct args
+      expect(updatedUserSpy).toHaveBeenCalledWith(mockUser.username, {
+        socketId: '12345',
+      });
+    });
+
+    it('should return 400 for request missing username', async () => {
+      const mockReqBody = {
+        socketId: 'someSocketId',
+      };
+
+      const response = await supertest(app).patch('/user/updateSocket').send(mockReqBody);
+
+      expect(response.status).toBe(400);
+      expect(response.text).toEqual('Invalid user body');
+    });
+
+    it('should return 400 for request with empty username', async () => {
+      const mockReqBody = {
+        username: '',
+        socketId: 'someSocketId',
+      };
+
+      const response = await supertest(app).patch('/user/updateSocket').send(mockReqBody);
+
+      expect(response.status).toBe(400);
+      expect(response.text).toEqual('Invalid user body');
+    });
+
+    it('should return 200 if we want to set the socket to null', async () => {
+      const mockReqBody = {
+        username: mockUser.username,
+      };
+
+      updatedUserSpy.mockResolvedValueOnce(mockSafeUser);
+
+      const response = await supertest(app).patch('/user/updateSocket').send(mockReqBody);
+
+      expect(response.status).toBe(200);
+    });
+
+    it('should return 500 if updateUser returns an error', async () => {
+      const mockReqBody = {
+        username: mockUser.username,
+        socketId: 'Attempting update socket ID',
+      };
+
+      // Simulate a DB error
+      updatedUserSpy.mockResolvedValueOnce({ error: 'Error updating user' });
+
+      const response = await supertest(app).patch('/user/updateSocket').send(mockReqBody);
+
+      expect(response.status).toBe(500);
+    });
+  });
 });
