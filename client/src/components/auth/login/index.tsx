@@ -27,6 +27,20 @@ const Login = () => {
   const { setUser } = useLoginContext();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Add login-page class to root when component mounts
+    const rootElement = document.getElementById('root');
+    if (rootElement) {
+      rootElement.classList.add('login-page');
+    }
+    // Clean up function to remove class when component unmounts
+    return () => {
+      if (rootElement) {
+        rootElement.classList.remove('login-page');
+      }
+    };
+  }, []);
+
   // Initialize Google OAuth
   useEffect(() => {
     const handleCredentialResponse = async (response: GoogleCredentialResponse) => {
