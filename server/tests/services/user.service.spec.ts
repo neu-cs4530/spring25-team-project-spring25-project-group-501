@@ -2,13 +2,17 @@ import mongoose from 'mongoose';
 import UserModel from '../../models/users.model';
 import {
   deleteUserByUsername,
+  getUserByEmail,
+  getUserByGoogleId,
   getUserByUsername,
   getUsersList,
   loginUser,
+  loginWithGoogle,
+  removeSocketBySocketId,
   saveUser,
   updateUser,
 } from '../../services/user.service';
-import { SafeDatabaseUser, User, UserCredentials } from '../../types/types';
+import { GoogleCredentials, SafeDatabaseUser, User, UserCredentials } from '../../types/types';
 import { user, safeUser } from '../mockData.models';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -73,6 +77,62 @@ describe('getUserByUsername', () => {
 
     const getUserError = await getUserByUsername(user.username);
 
+    expect('error' in getUserError).toBe(true);
+  });
+});
+
+describe('getUserByGoogleId', () => {
+  beforeEach(() => {
+    mockingoose.resetAll();
+  });
+
+  it('should return the matching user', async () => {
+    mockingoose(UserModel).toReturn(safeUser, 'findOne');
+
+    const retrievedUser = (await getUserByGoogleId(user.googleId ?? '')) as SafeDatabaseUser;
+
+    expect(retrievedUser.username).toEqual(user.username);
+    expect(retrievedUser.dateJoined).toEqual(user.dateJoined);
+  });
+
+  it('should throw an error if the user is not found', async () => {
+    mockingoose(UserModel).toReturn(null, 'findOne');
+
+    const getUserError = await getUserByGoogleId(user.googleId ?? '');
+
+    expect('error' in getUserError).toBe(true);
+  });
+
+  it('should throw an error if there is an error while searching the database', async () => {
+    mockingoose(UserModel).toReturn(new Error('Error finding document'), 'findOne');
+
+    const getUserError = await getUserByGoogleId(user.googleId ?? '');
+
+    expect('error' in getUserError).toBe(true);
+  });
+});
+
+describe('getUserByEmail', () => {
+  beforeEach(() => {
+    mockingoose.resetAll();
+  });
+
+  it('should return the matching user', async () => {
+    mockingoose(UserModel).toReturn(safeUser, 'findOne');
+    const retrievedUser = (await getUserByEmail(user.username)) as SafeDatabaseUser;
+    expect(retrievedUser.username).toEqual(user.username);
+    expect(retrievedUser.dateJoined).toEqual(user.dateJoined);
+  });
+
+  it('should throw an error if the user is not found', async () => {
+    mockingoose(UserModel).toReturn(null, 'findOne');
+    const getUserError = await getUserByEmail(user.username);
+    expect('error' in getUserError).toBe(true);
+  });
+
+  it('should throw an error if there is an error while searching the database', async () => {
+    mockingoose(UserModel).toReturn(new Error('Error finding document'), 'findOne');
+    const getUserError = await getUserByEmail(user.username);
     expect('error' in getUserError).toBe(true);
   });
 });
@@ -185,6 +245,46 @@ describe('deleteUserByUsername', () => {
   });
 });
 
+describe('removeSocketBySocketId', () => {
+  beforeEach(() => {
+    mockingoose.resetAll();
+  });
+
+  it('should return the updated user when updated succesfully', async () => {
+    const socketId = '12345';
+    const updatedUser: SafeDatabaseUser = {
+      ...safeUser,
+      socketId: '',
+    };
+
+    mockingoose(UserModel).toReturn(updatedUser, 'findOneAndUpdate');
+
+    const result = (await removeSocketBySocketId(socketId)) as SafeDatabaseUser;
+
+    expect(result.socketId).toEqual('');
+  });
+
+  it('should throw an error if the username is not found', async () => {
+    const socketId = '12345';
+
+    mockingoose(UserModel).toReturn(null, 'findOneAndUpdate');
+
+    const updatedError = await removeSocketBySocketId(socketId);
+
+    expect('error' in updatedError).toBe(true);
+  });
+
+  it('should throw an error if a database error while deleting', async () => {
+    const socketId = '12345';
+
+    mockingoose(UserModel).toReturn(new Error('Error updating object'), 'findOneAndUpdate');
+
+    const updatedError = await removeSocketBySocketId(socketId);
+
+    expect('error' in updatedError).toBe(true);
+  });
+});
+
 describe('updateUser', () => {
   const updatedUser: User = {
     ...user,
@@ -259,5 +359,68 @@ describe('updateUser', () => {
     const updatedError = await updateUser(user.username, biographyUpdates);
 
     expect('error' in updatedError).toBe(true);
+  });
+});
+
+describe('loginWithGoogle', () => {
+  beforeEach(() => {
+    mockingoose.resetAll();
+  });
+
+  it('should return the user if authentication succeeds', async () => {
+    mockingoose(UserModel).toReturn(safeUser, 'getUserByGoogleId');
+
+    const credentials: GoogleCredentials = {
+      googleId: user.googleId || '',
+      email: user.password || '',
+    };
+
+    const loggedInUser = (await loginWithGoogle(credentials)) as SafeDatabaseUser;
+
+    expect(loggedInUser.googleId).toEqual(user.googleId);
+  });
+
+  it('should return the user if authentication fails but email login works', async () => {
+    mockingoose(UserModel).toReturn({ error: 'whoops' }, 'getUserByGoogleId');
+
+    const credentials: GoogleCredentials = {
+      googleId: user.googleId || '',
+      email: user.password || '',
+    };
+
+    const loggedInUser = (await loginWithGoogle(credentials)) as SafeDatabaseUser;
+
+    expect(loggedInUser.googleId).toEqual(user.googleId);
+  });
+
+  it('should return a new user if authentication by google id and email fails', async () => {
+    mockingoose(UserModel).toReturn(null, 'getUserByGoogleId');
+    mockingoose(UserModel).toReturn(null, 'getUserByEmail');
+
+    const credentials: GoogleCredentials = {
+      googleId: user.googleId || '',
+      email: user.password || '',
+    };
+
+    const loggedInUser = (await loginWithGoogle(credentials)) as SafeDatabaseUser;
+
+    expect(loggedInUser.googleId).toEqual(user.googleId);
+  });
+
+  it('should return an error if authentication by google id and email fails and saving a new user fails', async () => {
+    mockingoose(UserModel).toReturn(null, 'getUserByGoogleId');
+    mockingoose(UserModel).toReturn(null, 'getUserByEmail');
+    jest.spyOn(UserModel, 'create').mockRejectedValueOnce(() => ({
+      error: 'Error saving document',
+    }));
+
+    const credentials: GoogleCredentials = {
+      googleId: user.googleId || '',
+      email: user.password || '',
+    };
+
+    const loggedInUser = await loginWithGoogle(credentials);
+
+    expect('error' in loggedInUser).toBe(true);
   });
 });
