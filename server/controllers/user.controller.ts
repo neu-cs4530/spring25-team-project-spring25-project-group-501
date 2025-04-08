@@ -162,10 +162,6 @@ const userController = (socket: FakeSOSocket) => {
 
         const user = await loginWithGoogle(googleCredentials);
 
-        if ('error' in user) {
-          throw Error(user.error);
-        }
-
         res.status(200).json(user);
       } catch (tokenError) {
         res.status(401).send('Invalid Google token');
