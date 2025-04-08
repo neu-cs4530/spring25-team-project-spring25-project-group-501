@@ -17,7 +17,7 @@
   gap: 16px;
   padding: 16px;
   overflow-y: auto;
-  max-height: 500px;
+  /* max-height: 500px; */
 }
 
 /* Styling for each user card */
