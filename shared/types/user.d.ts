@@ -132,7 +132,7 @@ export interface UpdateBiographyRequest extends Request {
  * - `username`: The username whose socket is being updated (body).
  * - `socketId`: The new socket ID to be set (body).
  */
-export interface UpdateUserScoketRequest extends Request {
+export interface UpdateUserSocketRequest extends Request {
   body: {
     username: string;
     socketId: string | undefined;
