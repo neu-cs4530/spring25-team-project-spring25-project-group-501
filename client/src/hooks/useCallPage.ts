@@ -46,7 +46,25 @@ const useCallPage = ({
     setUpdateCallableUsers(prev => !prev);
   };
 
-  const connectionRef = useRef<Peer.Instance>();
+  const connectionRef = useRef<Peer.Instance | null>();
+
+  const handleDisconnect = () => {
+    connectionRef.current?.end();
+    connectionRef.current = null;
+    setCall({
+      isReceivedCall: false,
+      from: '',
+      name: undefined,
+      signal: undefined,
+    });
+    setCallAccepted(false);
+    setCallEnded(false);
+    // setStream(undefined);
+
+    if (userVideo.current) {
+      userVideo.current.srcObject = null;
+    }
+  };
 
   useEffect(() => {
     const getCallableUsers = async () => {
@@ -85,14 +103,15 @@ const useCallPage = ({
         myVideo.current.muted = true;
       }
     });
-
-    socket.on('callUser', ({ from, name: callerName, signal }) => {
-      setCall({ isReceivedCall: true, from, name: callerName, signal });
-    });
   }, [myVideo, socket, muted]);
+
+  socket.on('callUser', ({ from, name: callerName, signal }) => {
+    setCall({ isReceivedCall: true, from, name: callerName, signal });
+  });
 
   const callUser = (id: string) => {
     const peer = new Peer({ initiator: true, trickle: false, stream });
+    connectionRef.current = peer;
 
     peer.on('signal', (data: SignalData) => {
       socket.emit('callUser', {
@@ -114,24 +133,26 @@ const useCallPage = ({
       peer.signal(signal);
     });
 
-    connectionRef.current = peer;
-
     peer.on('close', () => {
-      setCallEnded(true);
+      handleDisconnect();
+      socket.off('callAccepted');
+    });
 
-      if (userVideo.current) {
-        userVideo.current.srcObject = null;
-      }
+    peer.on('end', () => {
+      handleDisconnect();
+      socket.off('callAccepted');
     });
 
     peer.on('error', _ => {
-      setCallEnded(true);
+      handleDisconnect();
+      socket.off('callAccepted');
     });
   };
 
   const answerCall = () => {
     setCallAccepted(true);
     const peer = new Peer({ initiator: false, trickle: false, stream });
+    connectionRef.current = peer;
 
     peer.on('signal', (data: SignalData) => {
       socket.emit('answerCall', { signal: data, to: call.from });
@@ -147,31 +168,25 @@ const useCallPage = ({
       peer.signal(call.signal);
     }
 
-    connectionRef.current = peer;
-
     peer.on('close', () => {
-      setCallEnded(true);
+      handleDisconnect();
+    });
 
-      if (userVideo.current) {
-        userVideo.current.srcObject = null;
-      }
+    peer.on('end', () => {
+      handleDisconnect();
     });
 
     peer.on('error', _ => {
-      setCallEnded(true);
+      handleDisconnect();
     });
   };
 
   const leaveCall = () => {
-    setCallEnded(true);
-    if (connectionRef.current) {
-      connectionRef.current.end();
-      connectionRef.current = undefined;
-    }
+    handleDisconnect();
 
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-    }
+    // if (stream) {
+    //   stream.getTracks().forEach(track => track.stop());
+    // }
   };
 
   const toggleMuted = () => {
@@ -179,6 +194,7 @@ const useCallPage = ({
       const newMuted = !prevMuted;
 
       if (connectionRef.current) {
+        // The following eslint-disable is required
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const peerConnection = (connectionRef.current as any)._pc as RTCPeerConnection | undefined;
 
@@ -211,6 +227,7 @@ const useCallPage = ({
       const newVideoOff = !prevVideoOff;
 
       if (connectionRef.current) {
+        // Same here, this eslint-disable is required
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const peerConnection = (connectionRef.current as any)._pc as RTCPeerConnection | undefined;
 
