@@ -183,10 +183,6 @@ const useCallPage = ({
 
   const leaveCall = () => {
     handleDisconnect();
-
-    // if (stream) {
-    //   stream.getTracks().forEach(track => track.stop());
-    // }
   };
 
   const toggleMuted = () => {
