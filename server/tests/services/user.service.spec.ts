@@ -12,6 +12,7 @@ import {
   saveUser,
   updateUser,
 } from '../../services/user.service';
+import * as util from '../../services/user.service';
 import { GoogleCredentials, SafeDatabaseUser, User, UserCredentials } from '../../types/types';
 import { user, safeUser } from '../mockData.models';
 
@@ -422,5 +423,70 @@ describe('loginWithGoogle', () => {
     const loggedInUser = await loginWithGoogle(credentials);
 
     expect('error' in loggedInUser).toBe(true);
+  });
+
+  it('should update existing user with Google ID and avatar if email matches', async () => {
+    const mockUserFromEmail = {
+      ...safeUser,
+      googleId: undefined,
+      avatarUrl: 'http://example.com/old-avatar.png',
+    };
+
+    const updatedUser = {
+      ...mockUserFromEmail,
+      googleId: 'google-xyz',
+      avatarUrl: 'http://example.com/new-avatar.png',
+    };
+
+    jest.spyOn(util, 'getUserByGoogleId').mockResolvedValue({ error: 'User not found' });
+
+    jest.spyOn(util, 'getUserByEmail').mockResolvedValue(mockUserFromEmail);
+
+    jest.spyOn(util, 'updateUser').mockResolvedValue(updatedUser);
+
+    const googleCredentials = {
+      googleId: 'google-xyz',
+      email: mockUserFromEmail.email || '',
+      picture: 'http://example.com/new-avatar.png',
+    };
+
+    const result = await loginWithGoogle(googleCredentials);
+
+    expect(result).toEqual(updatedUser);
+    expect('error' in result).toBe(false);
+  });
+
+  it('should return an error if updating user with Google ID fails', async () => {
+    const mockUserFromEmail = {
+      ...safeUser,
+      googleId: undefined,
+      avatarUrl: 'http://example.com/old-avatar.png',
+    };
+
+    // Step 1: No user found by Google ID
+    jest.spyOn(util, 'getUserByGoogleId').mockResolvedValue({ error: 'User not found' });
+
+    // Step 2: User found by email
+    jest.spyOn(util, 'getUserByEmail').mockResolvedValue(mockUserFromEmail);
+
+    // Step 3: Simulate update failure
+    jest
+      .spyOn(util, 'updateUser')
+      .mockResolvedValue({ error: 'Failed to update user with Google ID' });
+
+    const googleCredentials = {
+      googleId: 'google-xyz',
+      email: mockUserFromEmail.email || '',
+      picture: 'http://example.com/new-avatar.png',
+    };
+
+    const result = await loginWithGoogle(googleCredentials);
+
+    expect('error' in result).toBe(true);
+    if ('error' in result) {
+      expect(result.error).toContain('Failed to update user with Google ID');
+    } else {
+      throw new Error('Expected result to be an error, but got a user object instead.');
+    }
   });
 });
