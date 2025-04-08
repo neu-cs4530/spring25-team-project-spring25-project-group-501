@@ -4,6 +4,21 @@ import { app } from '../../app';
 import * as util from '../../services/user.service';
 import { SafeDatabaseUser, User } from '../../types/types';
 
+jest.mock('google-auth-library', () => {
+  const mockVerifyIdToken = jest.fn();
+
+  return {
+    OAuth2Client: jest.fn().mockImplementation(() => ({
+      verifyIdToken: mockVerifyIdToken,
+    })),
+    // Export the mock function so tests can control it
+    mockVerifyIdToken,
+  };
+});
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { mockVerifyIdToken } = require('google-auth-library');
+
 const mockUser: User = {
   username: 'user1',
   password: 'password',
@@ -22,6 +37,21 @@ const mockUserJSONResponse = {
   dateJoined: new Date('2024-12-03').toISOString(),
 };
 
+jest.mock('../../services/user.service', () => {
+  const originalModule = jest.requireActual('../../services/user.service');
+  return {
+    ...originalModule,
+    saveUser: jest.fn(),
+    loginUser: jest.fn(),
+    updateUser: jest.fn(),
+    getUserByUsername: jest.fn(),
+    getUsersList: jest.fn(),
+    deleteUserByUsername: jest.fn(),
+    loginWithGoogle: jest.fn(),
+  };
+});
+
+const loginWithGoogleSpy = jest.spyOn(util, 'loginWithGoogle');
 const saveUserSpy = jest.spyOn(util, 'saveUser');
 const loginUserSpy = jest.spyOn(util, 'loginUser');
 const updatedUserSpy = jest.spyOn(util, 'updateUser');
@@ -476,6 +506,105 @@ describe('Test userController', () => {
       const response = await supertest(app).patch('/user/updateSocket').send(mockReqBody);
 
       expect(response.status).toBe(500);
+    });
+  });
+});
+
+describe('Test userController Google OAuth', () => {
+  beforeEach(() => {
+    // Clear all mocks before each test
+    jest.clearAllMocks();
+  });
+
+  describe('POST /google-login', () => {
+    it('should successfully login user with valid Google credentials', async () => {
+      // Mock the Google verification to return a valid payload
+      mockVerifyIdToken.mockResolvedValueOnce({
+        getPayload: () => ({
+          sub: '123456789',
+          email: 'test@gmail.com',
+          name: 'Test User',
+          picture: 'https://example.com/profile.jpg',
+        }),
+      });
+
+      // Mock successful login with Google
+      loginWithGoogleSpy.mockResolvedValueOnce(mockSafeUser);
+
+      const mockReqBody = {
+        credential: 'valid-google-token',
+      };
+
+      const response = await supertest(app).post('/user/google-login').send(mockReqBody);
+
+      // Verify the response
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(mockUserJSONResponse);
+
+      // Verify the mock was called with correct parameters
+      expect(mockVerifyIdToken).toHaveBeenCalledWith({
+        idToken: 'valid-google-token',
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+
+      expect(loginWithGoogleSpy).toHaveBeenCalledWith({
+        googleId: '123456789',
+        email: 'test@gmail.com',
+        name: 'Test User',
+        picture: 'https://example.com/profile.jpg',
+      });
+    });
+
+    it('should return 401 for invalid Google token', async () => {
+      mockVerifyIdToken.mockRejectedValueOnce(new Error('Invalid token'));
+
+      const mockReqBody = {
+        credential: 'invalid-google-token',
+      };
+
+      const response = await supertest(app).post('/user/google-login').send(mockReqBody);
+
+      expect(response.status).toBe(401);
+      expect(response.text).toEqual('Invalid Google token');
+    });
+
+    it('should return 401 when payload is null', async () => {
+      mockVerifyIdToken.mockResolvedValueOnce({
+        getPayload: () => null,
+      });
+
+      const mockReqBody = {
+        credential: 'token-with-null-payload',
+      };
+
+      const response = await supertest(app).post('/user/google-login').send(mockReqBody);
+
+      expect(response.status).toBe(401);
+      expect(response.text).toEqual('Invalid Google token');
+    });
+
+    it('should return 400 for request missing credential', async () => {
+      const mockReqBody = {};
+
+      const response = await supertest(app).post('/user/google-login').send(mockReqBody);
+
+      expect(response.status).toBe(400);
+      expect(response.text).toEqual('Invalid Google OAuth credential');
+
+      expect(mockVerifyIdToken).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 for request with empty credential', async () => {
+      const mockReqBody = {
+        credential: '',
+      };
+
+      const response = await supertest(app).post('/user/google-login').send(mockReqBody);
+
+      expect(response.status).toBe(400);
+      expect(response.text).toEqual('Invalid Google OAuth credential');
+
+      expect(mockVerifyIdToken).not.toHaveBeenCalled();
     });
   });
 });
