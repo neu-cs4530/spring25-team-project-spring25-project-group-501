@@ -10,7 +10,7 @@ import {
   UpdateBiographyRequest,
   GoogleOAuthRequest,
   GoogleCredentials,
-  UpdateUserScoketRequest,
+  UpdateUserSocketRequest,
 } from '../types/types';
 import {
   deleteUserByUsername,
@@ -308,7 +308,7 @@ const userController = (socket: FakeSOSocket) => {
    * @param res The response, either confirming the update or returning an error.
    * @returns A promise resolving to void.
    */
-  const updateUserSocket = async (req: UpdateUserScoketRequest, res: Response): Promise<void> => {
+  const updateUserSocket = async (req: UpdateUserSocketRequest, res: Response): Promise<void> => {
     try {
       const { username, socketId } = req.body;
 
