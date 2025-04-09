@@ -1,7 +1,16 @@
 import supertest from 'supertest';
 import { Whiteboard } from '@fake-stack-overflow/shared';
+import { createServer } from 'http';
+import { AddressInfo } from 'net';
+import { Server, type Socket as ServerSocket } from 'socket.io';
+import { io as Client, Socket as ClientSocket } from 'socket.io-client';
 import { app } from '../../app';
 import * as util from '../../services/whiteboard.service';
+import whiteboardController from '../../controllers/whiteboard.controller';
+import { getWhiteboardByLink } from '../../services/whiteboard.service';
+
+jest.mock('../../services/whiteboard.service');
+const mockedGetWhiteboardByLink = getWhiteboardByLink as jest.Mock;
 
 const saveWhiteboardSpy = jest.spyOn(util, 'saveWhiteboard');
 const getWhiteboardByLinkSpy = jest.spyOn(util, 'getWhiteboardByLink');
@@ -59,6 +68,55 @@ describe('Test whiteboardController', () => {
         .expect(500);
 
       expect(response.body).toEqual({ error: 'Failed to create whiteboard' });
+    });
+  });
+
+  describe('Whiteboard Socket handlers', () => {
+    let io: Server;
+    let serverSocket: ServerSocket;
+    let clientSocket: ClientSocket;
+
+    beforeAll(done => {
+      const httpServer = createServer();
+      io = new Server(httpServer);
+      whiteboardController(io);
+
+      httpServer.listen(() => {
+        const { port } = httpServer.address() as AddressInfo;
+        clientSocket = Client(`http://localhost:${port}`);
+        io.on('connection', socket => {
+          serverSocket = socket;
+        });
+        clientSocket.on('connect', done);
+      });
+    });
+
+    afterAll(() => {
+      clientSocket.disconnect();
+      serverSocket.disconnect();
+      io.close();
+    });
+
+    it('should join a whiteboard room and emit content', done => {
+      const dummyContent = 'some whiteboard data';
+      mockedGetWhiteboardByLink.mockResolvedValueOnce({ content: dummyContent });
+
+      clientSocket.on('whiteboardContent', content => {
+        expect(content).toBe(dummyContent);
+        done();
+      });
+
+      clientSocket.emit('joinWhiteboard', 'wb123');
+    }, 10000);
+
+    it('should leave a whiteboard room', done => {
+      clientSocket.emit('joinWhiteboard', 'wb123');
+      clientSocket.emit('leaveWhiteboard', 'wb123');
+
+      setTimeout(() => {
+        expect(serverSocket.rooms.has('wb123')).toBe(false);
+        done();
+      }, 50);
     });
   });
 
