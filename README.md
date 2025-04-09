@@ -1,6 +1,6 @@
 ## Getting Started
 
-Follow instructions in the User Manual our final project [report](https://docs.google.com/document/d/1Owfundkk6FYjnnHgYOPXYIzI8_D23WNO1a1wOq7sxe8/edit?tab=t.0) to set up a local development environment or deploy to Render.
+Follow instructions in the User Manual of our final project [report](https://docs.google.com/document/d/1Owfundkk6FYjnnHgYOPXYIzI8_D23WNO1a1wOq7sxe8/edit?tab=t.0) to set up a local development environment or deploy to Render.
 
 ## Codebase Folder Structure
 
