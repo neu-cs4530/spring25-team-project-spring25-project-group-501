@@ -3,7 +3,7 @@
   flex-direction: row;
   /* justify-content: space-between;  */
   margin-top: 5%;
-  border-bottom: #000000 1px dashed;
+  border-bottom: #000000 1px;
 }
 
 .answer_question_view {

@@ -1,10 +1,6 @@
-The individual and team project for this class are designed to mirror the experiences of a software engineer joining a new development team: you will be “onboarded” to our codebase, make several individual contributions, and then form a team to propose, develop and implement new features. The codebase that we’ll be developing on is a Fake Stack Overflow project (let’s call it HuskyFlow). You will get an opportunity to work with the starter code which provides basic skeleton for the app and then additional features will be proposed and implemented by you! All implementation will take place in the TypeScript programming language, using React for the user interface.
-
 ## Getting Started
 
-Run `npm install` in the root directory to install all dependencies for the `client`, `server`, and `shared` folders.
-
-{ : .note } Refer to [IP1](https://neu-se.github.io/CS4530-Spring-2025/assignments/ip1) and [IP2](https://neu-se.github.io/CS4530-Spring-2025/assignments/ip2) for further instructions related to setting up MongoDB, setting environment variables, and running the client and server.
+Follow instructions in the User Manual of our final project [report](https://docs.google.com/document/d/1Owfundkk6FYjnnHgYOPXYIzI8_D23WNO1a1wOq7sxe8/edit?tab=t.0) to set up a local development environment or deploy to Render.
 
 ## Codebase Folder Structure
 
@@ -15,9 +11,6 @@ Run `npm install` in the root directory to install all dependencies for the `cli
 ## Database Architecture
 
 The schemas for the database are documented in the directory `server/models/schema`.
-A class diagram for the schema definition is shown below:
-
-![Class Diagram](class-diagram.png)
 
 ## API Routes
 
@@ -39,6 +32,7 @@ A class diagram for the schema definition is shown below:
 | ------------ | ------ | --------------------- |
 | /addMessage  | POST   | Add a new message     |
 | /getMessages | GET    | Retrieve all messages |
+| /voteOnPoll  | PATCH  | Add a vote to a poll  |
 
 ### `/question`
 
@@ -68,16 +62,19 @@ A class diagram for the schema definition is shown below:
 | /getUsers        | GET    | Fetch all users                |
 | /deleteUser/     | DELETE | Delete a user by username      |
 | /updateBiography | PATCH  | Update user biography          |
+| /updateSocket    | PATCH  | Update user's socket ID        |
 
 ### `/chat`
 
 | Endpoint                    | Method | Description                                                                 |
 | --------------------------- | ------ | --------------------------------------------------------------------------- |
-| `/createChat`               | POST   | Create a new chat.                                                          |
-| `/:chatId/addMessage`       | POST   | Add a new message to an existing chat.                                      |
-| `/:chatId`                  | GET    | Retrieve a chat by its ID, optionally populating participants and messages. |
-| `/:chatId/addParticipant`   | POST   | Add a new participant to an existing chat.                                  |
-| `/getChatsByUser/:username` | GET    | Retrieve all chats for a specific user based on their username.             |
+| /createChat                 | POST   | Create a new chat.                                                          |
+| /:chatId/addMessage         | POST   | Add a new message to an existing chat.                                      |
+| /:chatId`                   | GET    | Retrieve a chat by its ID, optionally populating participants and messages. |
+| /:chatId/addParticipant     | POST   | Add a new participant to an existing chat.                                  |
+| /getChatsByUser/:username   | GET    | Retrieve all chats for a specific user based on their username.             |
+| /:chatId/changeUserRole     | PATCH  | Change a user's permissions                                                 |
+| /:chatId/message/:messageId | DELETE | Delete a message from a chat                                                |
 
 ### `/games`
 
@@ -87,6 +84,15 @@ A class diagram for the schema definition is shown below:
 | /join    | POST   | Join an existing game |
 | /leave   | POST   | Leave a game          |
 | /games   | GET    | Retrieve all games    |
+
+### `/whiteboard`
+
+| Endpoint        | Method | Description                        |
+| --------------- | ------ | ---------------------------------- |
+| /addWhiteboard  | POST   | Create a new whiteboard            |
+| /:uniqueLink    | GET    | Retrieve a whiteboard by its id    |
+| /byOwner/:owner | GET    | Retrieve a whiteboard by its owner |
+| /:uniqueLink    | DELETE | Delete a whiteboard                |
 
 ## Running Stryker Mutation Testing
 

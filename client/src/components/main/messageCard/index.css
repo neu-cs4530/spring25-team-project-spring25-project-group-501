@@ -8,16 +8,7 @@
   border-radius: 8px;
   background-color: #f9f9f9;
   width: 98%;
-}
-
-.message.sender {
-  align-self: flex-end;
-  background-color: #d1e7ff;
-}
-
-.message.receiver {
-  align-self: flex-start;
-  background-color: #ffffff;
+  position: relative;
 }
 
 .message-header {
@@ -44,4 +35,94 @@
   color: #333;
   line-height: 1.5;
   word-wrap: break-word;
+}
+
+.message:hover .delete-message-button {
+  opacity: 1; 
+  visibility: visible;
+}
+
+.delete-message-button {
+  background-color: transparent;
+  border: none;
+  color: #666;
+  font-size: 0.7rem; 
+  cursor: pointer;
+  position: absolute;
+  top: 1.4rem;
+  right: 10px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  border-radius: 20%; 
+  padding: 5px; 
+}
+
+.delete-message-button:hover {
+  background-color: #ff4d4d;
+  color: white; 
+  transform: scale(1.1); 
+}
+
+.poll-container {
+  margin-top: 10px;
+  padding: 15px;
+  border: 1px solid #d8d6f2;
+  border-radius: 8px;
+  background-color: #f6f5ff;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.poll-question {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #5652a3; 
+}
+
+.poll-options {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 8px; 
+}
+
+.poll-option-button {
+  background-color: #9290C3; 
+  color: white;
+  padding: 10px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.poll-option-button:hover {
+  background-color: #7976b3;
+  transform: translateY(-1px);
+}
+
+.poll-option-button.voted {
+  background-color: #4d94ff; 
+  box-shadow: 0 3px 8px rgba(0, 123, 255, 0.4);
+}
+
+.vote-count {
+  font-size: 0.9rem;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-weight: 500;
+}
+
+.fas {
+  font-size: 1.2rem;
 }

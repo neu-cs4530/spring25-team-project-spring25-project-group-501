@@ -4,6 +4,7 @@ on: # Controls when the action will run.
   push:
     branches:
       - "*"
+      - whiteboard-list
   pull_request:
     branches:
       - "*"

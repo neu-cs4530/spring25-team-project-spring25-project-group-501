@@ -1,15 +1,35 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-between;
   height: 10%;
-  width: 100%;
-  background: #dddddd;
+  background-color: #070F2B;
 }
 
 .title {
   font-size: 32px;
   font-weight: 800;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-picture {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #007bff;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.profile-picture:hover {
+  transform: scale(1.1);
+  border-color: #0056b3;
 }
 
 .logout-button {
@@ -30,7 +50,8 @@
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
-  margin-left: 10px; /* Add spacing from Logout button */
+  margin-left: 10px;
+  /* Add spacing from Logout button */
 }
 
 .view-profile-button:hover {

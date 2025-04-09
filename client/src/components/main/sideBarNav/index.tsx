@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './index.css';
 import { NavLink, useLocation } from 'react-router-dom';
 
@@ -49,7 +49,7 @@ const SideBarNav = () => {
           <NavLink
             to='/messaging/direct-message'
             className={`menu_button message-options ${isActiveOption('/messaging/direct-message')}`}>
-            Direct Messages
+            Chats
           </NavLink>
         </div>
       )}
@@ -64,6 +64,18 @@ const SideBarNav = () => {
         id='menu_games'
         className={({ isActive }) => `menu_button ${isActive ? 'menu_selected' : ''}`}>
         Games
+      </NavLink>
+      <NavLink
+        to='/whiteboard'
+        id='menu_whiteboard'
+        className={({ isActive }) => `menu_button ${isActive ? 'menu_selected' : ''}`}>
+        Whiteboard
+      </NavLink>
+      <NavLink
+        to='/call'
+        id='menu_call'
+        className={({ isActive }) => `menu_button ${isActive ? 'menu_selected' : ''}`}>
+        Calling
       </NavLink>
     </div>
   );

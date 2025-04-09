@@ -9,6 +9,7 @@ import { SafeDatabaseUser } from '../types/types';
  *             to indicate no user is logged in.
  */
 export interface LoginContextType {
+  username: string | undefined;
   setUser: (user: SafeDatabaseUser | null) => void;
 }
 

@@ -1,6 +1,8 @@
 import React from 'react';
 import './index.css';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUserSlash } from '@fortawesome/free-solid-svg-icons';
 import UserCardView from './userCard';
 import UsersListHeader from './header';
 import useUsersListPage from '../../../hooks/useUsersListPage';
@@ -36,20 +38,27 @@ const UsersListPage = (props: UserListPageProps) => {
       navigate(`/user/${user.username}`);
     }
   };
+
   return (
-    <div className='user-card-container'>
+    <div className='users-list-container'>
       <UsersListHeader userCount={userList.length} setUserFilter={setUserFilter} />
-      <div id='users_list' className='users_list'>
-        {userList.map(user => (
-          <UserCardView
-            user={user}
-            key={user.username}
-            handleUserCardViewClickHandler={handleUserCardViewClickHandler}
-          />
-        ))}
-      </div>
-      {(!userList.length || userList.length === 0) && (
-        <div className='bold_title right_padding'>No Users Found</div>
+
+      {userList.length > 0 ? (
+        <div className='users-grid'>
+          {userList.map(user => (
+            <UserCardView
+              user={user}
+              key={user.username}
+              handleUserCardViewClickHandler={handleUserCardViewClickHandler}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className='empty-users-list'>
+          <FontAwesomeIcon icon={faUserSlash} className='empty-icon' />
+          <p>No Users Found</p>
+          <span>Try adjusting your search criteria</span>
+        </div>
       )}
     </div>
   );

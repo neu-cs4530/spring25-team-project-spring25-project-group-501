@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './layout';
 import Login from './auth/login';
@@ -17,6 +17,11 @@ import UsersListPage from './main/usersListPage';
 import ProfileSettings from './profileSettings';
 import AllGamesPage from './main/games/allGamesPage';
 import GamePage from './main/games/gamePage';
+import WhiteboardPage from './main/whiteboard/whiteboardPage';
+import SpecificWhiteboardPage from './main/whiteboard/specificWhiteboardPage';
+import NotificationManager from './notificationManager';
+import CallPage from './main/callPage';
+import { updateUserSocket } from '../services/userService';
 
 const ProtectedRoute = ({
   user,
@@ -41,8 +46,20 @@ const ProtectedRoute = ({
 const FakeStackOverflow = ({ socket }: { socket: FakeSOSocket | null }) => {
   const [user, setUser] = useState<SafeDatabaseUser | null>(null);
 
+  useEffect(() => {
+    if (socket && socket.id && user) {
+      updateUserSocket(user.username, socket.id);
+    }
+
+    return () => {
+      if (user) {
+        updateUserSocket(user.username, undefined);
+      }
+    };
+  }, [socket, user]);
+
   return (
-    <LoginContext.Provider value={{ setUser }}>
+    <LoginContext.Provider value={{ username: user?.username, setUser }}>
       <Routes>
         {/* Public Route */}
         <Route path='/' element={<Login />} />
@@ -52,7 +69,10 @@ const FakeStackOverflow = ({ socket }: { socket: FakeSOSocket | null }) => {
           <Route
             element={
               <ProtectedRoute user={user} socket={socket}>
-                <Layout />
+                <>
+                  <NotificationManager socket={socket} />
+                  <Layout />
+                </>
               </ProtectedRoute>
             }>
             <Route path='/home' element={<QuestionPage />} />
@@ -66,6 +86,9 @@ const FakeStackOverflow = ({ socket }: { socket: FakeSOSocket | null }) => {
             <Route path='/user/:username' element={<ProfileSettings />} />
             <Route path='/games' element={<AllGamesPage />} />
             <Route path='/games/:gameID' element={<GamePage />} />
+            <Route path='/whiteboard' element={<WhiteboardPage />} />
+            <Route path='/whiteboard/:whiteboardID' element={<SpecificWhiteboardPage />} />
+            <Route path='/call' element={<CallPage />} />
           </Route>
         }
       </Routes>

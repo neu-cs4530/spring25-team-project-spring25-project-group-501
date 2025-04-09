@@ -18,6 +18,8 @@ import userController from './controllers/user.controller';
 import messageController from './controllers/message.controller';
 import chatController from './controllers/chat.controller';
 import gameController from './controllers/game.controller';
+import whiteboardController from './controllers/whiteboard.controller';
+import { removeSocketBySocketId } from './services/user.service';
 
 dotenv.config();
 
@@ -45,7 +47,24 @@ function startServer() {
 socket.on('connection', socket => {
   console.log('A user connected ->', socket.id);
 
-  socket.on('disconnect', () => {
+  socket.on('callUser', ({ userToCall, signalData, from, name }) => {
+    socket.to(userToCall).emit('callUser', { signal: signalData, from, name });
+  });
+  socket.on('answerCall', ({ to, signal }) => {
+    socket.to(to).emit('callAccepted', signal);
+  });
+  socket.on('disconnect', async () => {
+    try {
+      const updatedUser = await removeSocketBySocketId(socket.id);
+
+      if ('error' in updatedUser) {
+        console.log(`${updatedUser.error}`);
+      } else {
+        console.log(`Removed socket from ${updatedUser.username}`);
+      }
+    } catch (error) {
+      console.log('Error removing socket from user: ', error);
+    }
     console.log('User disconnected');
   });
 });
@@ -82,6 +101,7 @@ app.use('/messaging', messageController(socket));
 app.use('/user', userController(socket));
 app.use('/chat', chatController(socket));
 app.use('/games', gameController(socket));
+app.use('/whiteboard', whiteboardController(socket));
 
 // Export the app instance
 export { app, server, startServer };

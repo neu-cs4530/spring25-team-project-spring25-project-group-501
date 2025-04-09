@@ -123,6 +123,20 @@ const updateBiography = async (
   return res.data;
 };
 
+const updateUserSocket = async (
+  username: string,
+  socketId: string | undefined,
+): Promise<SafeDatabaseUser> => {
+  const res = await api.patch(`${USER_API_URL}/updateSocket`, {
+    username,
+    socketId,
+  });
+  if (res.status !== 200) {
+    throw new Error('Error when updating socket');
+  }
+  return res.data;
+};
+
 export {
   getUsers,
   getUserByUsername,
@@ -131,4 +145,5 @@ export {
   deleteUser,
   resetPassword,
   updateBiography,
+  updateUserSocket,
 };

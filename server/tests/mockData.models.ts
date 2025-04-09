@@ -7,6 +7,7 @@ import {
   PopulatedDatabaseQuestion,
   SafeDatabaseUser,
   User,
+  Whiteboard,
 } from '../types/types';
 import { T1_DESC, T2_DESC, T3_DESC } from '../data/posts_strings';
 
@@ -188,10 +189,30 @@ export const user: User = {
   username: 'user1',
   password: 'password',
   dateJoined: new Date('2024-12-03'),
+  googleId: 'googleId1',
 };
 
 export const safeUser: SafeDatabaseUser = {
   _id: new ObjectId(),
   username: 'user1',
   dateJoined: new Date('2024-12-03'),
+  googleId: 'googleId1',
+};
+
+export const whiteboard: Whiteboard = {
+  owner: 'user1',
+  title: 'whiteboard1',
+  dateCreated: new Date('2024-12-03'),
+  content: 'content1',
+  uniqueLink: 'uniqueLink1',
+  accessType: 'editable',
+};
+
+export const whiteboard2: Whiteboard = {
+  owner: 'user1',
+  title: 'whiteboard2',
+  dateCreated: new Date('2024-12-05'),
+  content: 'content1',
+  uniqueLink: 'uniqueLink2',
+  accessType: 'read-only',
 };

@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './index.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
+import useLoginContext from '../../../hooks/useLoginContext';
+import {
+  GoogleCredentialResponse,
+  initializeGoogleAuth,
+  renderGoogleButton,
+  processGoogleLogin,
+} from '../../../services/googleAuthService';
 
 /**
  * Renders a login form with username and password inputs, password visibility toggle,
@@ -17,10 +24,54 @@ const Login = () => {
     handleInputChange,
     togglePasswordVisibility,
   } = useAuth('login');
+  const { setUser } = useLoginContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Add login-page class to root when component mounts
+    const rootElement = document.getElementById('root');
+    if (rootElement) {
+      rootElement.classList.add('login-page');
+    }
+    // Clean up function to remove class when component unmounts
+    return () => {
+      if (rootElement) {
+        rootElement.classList.remove('login-page');
+      }
+    };
+  }, []);
+
+  // Initialize Google OAuth
+  useEffect(() => {
+    const handleCredentialResponse = async (response: GoogleCredentialResponse) => {
+      try {
+        // Process the Google login using our service
+        const user = await processGoogleLogin(response.credential);
+
+        setUser(user);
+
+        navigate('/home');
+      } catch (error) {
+        throw new Error(`Error processing Google login: ${error}`);
+      }
+    };
+
+    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
+
+    if (clientId) {
+      initializeGoogleAuth(clientId, handleCredentialResponse);
+
+      renderGoogleButton('google-signin-button');
+    } else {
+      throw new Error('Google client ID not found');
+    }
+  }, [navigate, setUser]);
 
   return (
     <div className='container'>
-      <h2>Welcome to FakeStackOverflow!</h2>
+      <h2>
+        Welcome to collabor<span className='text-blue-700'>8</span>!
+      </h2>
       <h3>Please login to continue.</h3>
       <form onSubmit={handleSubmit}>
         <h4>Please enter your username.</h4>
@@ -56,6 +107,10 @@ const Login = () => {
           Submit
         </button>
       </form>
+      <div className='oauth-container'>
+        <p>Or sign in with:</p>
+        <div id='google-signin-button'></div>
+      </div>
       {err && <p className='error-message'>{err}</p>}
       <Link to='/signup' className='signup-link'>
         Don&apos;t have an account? Sign up here.

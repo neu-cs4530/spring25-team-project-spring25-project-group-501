@@ -1,4 +1,6 @@
 import express, { Request, Response, Router } from 'express';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { OAuth2Client } from 'google-auth-library';
 import {
   UserRequest,
   User,
@@ -6,6 +8,9 @@ import {
   UserByUsernameRequest,
   FakeSOSocket,
   UpdateBiographyRequest,
+  GoogleOAuthRequest,
+  GoogleCredentials,
+  UpdateUserSocketRequest,
 } from '../types/types';
 import {
   deleteUserByUsername,
@@ -14,10 +19,13 @@ import {
   loginUser,
   saveUser,
   updateUser,
+  loginWithGoogle,
 } from '../services/user.service';
 
 const userController = (socket: FakeSOSocket) => {
   const router: Router = express.Router();
+
+  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
   /**
    * Validates that the request body contains all required fields for a user.
@@ -41,6 +49,14 @@ const userController = (socket: FakeSOSocket) => {
     req.body.username !== undefined &&
     req.body.username.trim() !== '' &&
     req.body.biography !== undefined;
+
+  /**
+   * Validates that the request body contains the Google OAuth credential.
+   * @param req The incoming request containing Google OAuth data.
+   * @returns `true` if the body contains valid Google credential; otherwise, `false`.
+   */
+  const isGoogleOAuthBodyValid = (req: GoogleOAuthRequest): boolean =>
+    req.body !== undefined && req.body.credential !== undefined && req.body.credential !== '';
 
   /**
    * Handles the creation of a new user account.
@@ -106,6 +122,52 @@ const userController = (socket: FakeSOSocket) => {
       res.status(200).json(user);
     } catch (error) {
       res.status(500).send('Login failed');
+    }
+  };
+
+  /**
+   * Handles Google OAuth login by validating and processing the Google credential token.
+   * @param req The request containing the Google OAuth credential in the body.
+   * @param res The response, either returning the user or an error.
+   * @returns A promise resolving to void.
+   */
+  const googleOAuthLogin = async (req: GoogleOAuthRequest, res: Response): Promise<void> => {
+    try {
+      if (!isGoogleOAuthBodyValid(req)) {
+        res.status(400).send('Invalid Google OAuth credential');
+        return;
+      }
+
+      const { credential } = req.body;
+
+      try {
+        const ticket = await client.verifyIdToken({
+          idToken: credential,
+          audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+
+        if (!payload) {
+          throw new Error('Invalid token payload');
+        }
+
+        // Extract user information from the verified token payload
+        const googleCredentials: GoogleCredentials = {
+          googleId: payload.sub,
+          email: payload.email || '',
+          name: payload.name || '',
+          picture: payload.picture || '',
+        };
+
+        const user = await loginWithGoogle(googleCredentials);
+
+        res.status(200).json(user);
+      } catch (tokenError) {
+        res.status(401).send('Invalid Google token');
+      }
+    } catch (error) {
+      res.status(500).send(`Google login failed: ${error}`);
     }
   };
 
@@ -236,14 +298,43 @@ const userController = (socket: FakeSOSocket) => {
     }
   };
 
+  /**
+   * Update a user's socket id
+   * @param req The request containing the username and socketId in the body.
+   * @param res The response, either confirming the update or returning an error.
+   * @returns A promise resolving to void.
+   */
+  const updateUserSocket = async (req: UpdateUserSocketRequest, res: Response): Promise<void> => {
+    try {
+      const { username, socketId } = req.body;
+
+      if (!username) {
+        res.status(400).send('Invalid user body');
+        return;
+      }
+
+      const updatedUser = await updateUser(username, { socketId });
+
+      if ('error' in updatedUser) {
+        throw new Error(updatedUser.error);
+      }
+
+      res.status(200).json(updatedUser);
+    } catch (error) {
+      res.status(500).send(`Error when updating user socket: ${error}`);
+    }
+  };
+
   // Define routes for the user-related operations.
   router.post('/signup', createUser);
   router.post('/login', userLogin);
+  router.post('/google-login', googleOAuthLogin);
   router.patch('/resetPassword', resetPassword);
   router.get('/getUser/:username', getUser);
   router.get('/getUsers', getUsers);
   router.delete('/deleteUser/:username', deleteUser);
   router.patch('/updateBiography', updateBiography);
+  router.patch('/updateSocket', updateUserSocket);
   return router;
 };
 
